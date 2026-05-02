@@ -1,0 +1,31 @@
+name: tictactoe_game
+description: A Tic-Tac-Toe variant game with dynamic piece removal.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # 状态管理
+  flutter_riverpod: ^2.3.0
+  riverpod_annotation: ^2.1.0
+  
+  # 动画效果
+  flutter_animate: ^4.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # 代码生成
+  build_runner: ^2.4.0
+  riverpod_generator: ^2.2.0
+  
+  # 代码分析
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

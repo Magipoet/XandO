@@ -1,0 +1,52 @@
+name: Build Windows Executable
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+      
+      - name: Generate Windows platform files
+        run: flutter create . --platforms windows
+      
+      - name: Build Windows executable
+        run: flutter build windows --release
+      
+      - name: Create distribution package
+        run: |
+          $buildDir = "build/windows/x64/runner/Release"
+          $distDir = "tictactoe-game-windows"
+          
+          New-Item -ItemType Directory -Path $distDir -Force
+          Copy-Item -Path "$buildDir/*" -Destination $distDir -Recurse
+          
+          Compress-Archive -Path $distDir -DestinationPath "tictactoe-game-windows.zip"
+      
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tictactoe-game-windows
+          path: tictactoe-game-windows.zip
+          retention-days: 30
