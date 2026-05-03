@@ -12,10 +12,11 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 30
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -26,6 +27,7 @@ jobs:
       
       - name: Install dependencies
         run: flutter pub get
+        timeout-minutes: 10
       
       - name: Enable Windows desktop
         run: flutter config --enable-windows-desktop
@@ -35,6 +37,7 @@ jobs:
       
       - name: Build Windows executable
         run: flutter build windows --release
+        timeout-minutes: 15
       
       - name: Create distribution package
         run: |
@@ -47,7 +50,7 @@ jobs:
           Compress-Archive -Path $distDir -DestinationPath "tictactoe-game-windows.zip"
       
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: tictactoe-game-windows
           path: tictactoe-game-windows.zip
@@ -55,11 +58,20 @@ jobs:
       
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: tictactoe-game-windows.zip
-          generate_release_notes: true
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          $releaseNotes = "Release $env:TAG_NAME`n`n"
+          $releaseNotes += "This release includes the Windows executable for the Tic Tac Toe game.`n`n"
+          $releaseNotes += "## Changes`n"
+          $releaseNotes += "- Automated build via GitHub Actions`n"
+          $releaseNotes += "- Windows executable package`n"
+          
+          $releaseNotes | Out-File -FilePath release_notes.txt -Encoding utf8
+          
+          gh release create $env:TAG_NAME `
+            "tictactoe-game-windows.zip" `
+            --title "Release $env:TAG_NAME" `
+            --notes-file release_notes.txt `
+            --verify-tag
