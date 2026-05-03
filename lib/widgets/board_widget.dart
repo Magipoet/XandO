@@ -49,7 +49,7 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
           ),
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: GameRules.boardSize,
               mainAxisSpacing: AppSizes.cellSpacing,
               crossAxisSpacing: AppSizes.cellSpacing,

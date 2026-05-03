@@ -51,5 +51,14 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android Signing (敏感信息，绝不提交)
+*.jks
+*.keystore
+key.properties
+android-signing/
+
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
+# Base64 encoded keystore (敏感信息，绝不提交)
+*base64*.txt

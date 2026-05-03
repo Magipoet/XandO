@@ -21,18 +21,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     _listenForWin(gameState);
 
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            const StatusBar(),
-            const Spacer(),
-            const Center(
+            StatusBar(),
+            Spacer(),
+            Center(
               child: BoardWidget(),
             ),
-            const Spacer(),
-            const ResetButton(),
+            Spacer(),
+            ResetButton(),
           ],
         ),
       ),
