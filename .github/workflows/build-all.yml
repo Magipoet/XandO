@@ -15,6 +15,10 @@ env:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre-check:
     name: Pre-check Configuration
@@ -256,11 +260,11 @@ jobs:
         KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       run: |
         cat > android/key.properties << EOF
-storePassword=$STORE_PASSWORD
-keyPassword=$KEY_PASSWORD
-keyAlias=$KEY_ALIAS
-storeFile=tictactoe-keystore.jks
-EOF
+        storePassword=$STORE_PASSWORD
+        keyPassword=$KEY_PASSWORD
+        keyAlias=$KEY_ALIAS
+        storeFile=tictactoe-keystore.jks
+        EOF
         
         echo "✅ key.properties created"
         cat android/key.properties | sed 's/=.*/=***REDACTED***/'
