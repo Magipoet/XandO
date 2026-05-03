@@ -9,6 +9,9 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -62,6 +65,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
+          Write-Host "=== Debug Information ==="
+          Write-Host "TAG_NAME: $env:TAG_NAME"
+          Write-Host "GITHUB_REF: $env:GITHUB_REF"
+          Write-Host "Current directory: $(Get-Location)"
+          Write-Host "Files in directory:"
+          Get-ChildItem
+          Write-Host ""
+          
           $releaseNotes = "Release $env:TAG_NAME`n`n"
           $releaseNotes += "This release includes the Windows executable for the Tic Tac Toe game.`n`n"
           $releaseNotes += "## Changes`n"
@@ -70,8 +81,12 @@ jobs:
           
           $releaseNotes | Out-File -FilePath release_notes.txt -Encoding utf8
           
+          Write-Host "=== Creating GitHub Release ==="
+          Write-Host "Running: gh release create $env:TAG_NAME tictactoe-game-windows.zip --title 'Release $env:TAG_NAME' --notes-file release_notes.txt"
+          
           gh release create $env:TAG_NAME `
             "tictactoe-game-windows.zip" `
             --title "Release $env:TAG_NAME" `
-            --notes-file release_notes.txt `
-            --verify-tag
+            --notes-file release_notes.txt
+          
+          Write-Host "=== Release Created Successfully ==="
