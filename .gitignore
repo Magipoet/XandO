@@ -62,3 +62,6 @@ android-signing/
 
 # Base64 encoded keystore (敏感信息，绝不提交)
 *base64*.txt
+
+# 例外：不忽略配置模板目录
+!/config/android/
