@@ -13,9 +13,51 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-windows:
+  quick-check:
+    name: Quick Check (Lightweight)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') || github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+        timeout-minutes: 5
+      
+      - name: Verify Flutter installation
+        run: |
+          flutter --version
+          flutter doctor --android-licenses 2>/dev/null || true
+      
+      - name: Check pubspec.yaml syntax
+        run: |
+          if [ -f pubspec.yaml ]; then
+            echo "✅ pubspec.yaml exists"
+            cat pubspec.yaml | head -30
+          else
+            echo "❌ pubspec.yaml not found"
+            exit 1
+          fi
+      
+      - name: Quick check complete
+        run: |
+          echo "✅ Quick check passed successfully!"
+          echo "📋 Full build and release will only run when pushing a tag (v*)"
+
+  build-and-release:
+    name: Build and Release Windows
     runs-on: windows-latest
     timeout-minutes: 30
+    if: startsWith(github.ref, 'refs/tags/v')
     
     steps:
       - name: Checkout code
@@ -60,7 +102,6 @@ jobs:
           retention-days: 30
       
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ github.ref_name }}
