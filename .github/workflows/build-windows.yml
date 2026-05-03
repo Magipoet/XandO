@@ -1,133 +1,80 @@
-name: Build and Release Windows Executable
+name: Build Windows Executable
 
 on:
   push:
-    branches: [main, master]
     tags:
       - 'v*'
-  pull_request:
-    branches: [main, master]
   workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FLUTTER_VERSION: '3.41.9'
+  APP_NAME: 'tictactoe-game'
+
+permissions:
+  contents: write
 
 jobs:
-  quick-check:
-    name: Quick Check (Lightweight)
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') || github.event_name == 'pull_request'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.9'
-          channel: 'stable'
-          cache: true
-      
-      - name: Install dependencies
-        run: flutter pub get
-        timeout-minutes: 5
-      
-      - name: Verify Flutter installation
-        run: |
-          flutter --version
-          flutter doctor --android-licenses 2>/dev/null || true
-      
-      - name: Check pubspec.yaml syntax
-        run: |
-          if [ -f pubspec.yaml ]; then
-            echo "✅ pubspec.yaml exists"
-            cat pubspec.yaml | head -30
-          else
-            echo "❌ pubspec.yaml not found"
-            exit 1
-          fi
-      
-      - name: Quick check complete
-        run: |
-          echo "✅ Quick check passed successfully!"
-          echo "📋 Full build and release will only run when pushing a tag (v*)"
-
-  build-and-release:
-    name: Build and Release Windows
+  build:
     runs-on: windows-latest
     timeout-minutes: 30
-    if: startsWith(github.ref, 'refs/tags/v')
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.9'
-          channel: 'stable'
-          cache: true
-      
-      - name: Install dependencies
-        run: flutter pub get
-        timeout-minutes: 10
-      
-      - name: Enable Windows desktop
-        run: flutter config --enable-windows-desktop
-      
-      - name: Generate Windows platform files
-        run: flutter create . --platforms windows
-      
-      - name: Build Windows executable
-        run: flutter build windows --release
-        timeout-minutes: 15
-      
-      - name: Create distribution package
-        run: |
-          $buildDir = "build/windows/x64/runner/Release"
-          $distDir = "tictactoe-game-windows"
-          
-          New-Item -ItemType Directory -Path $distDir -Force
-          Copy-Item -Path "$buildDir/*" -Destination $distDir -Recurse
-          
-          Compress-Archive -Path $distDir -DestinationPath "tictactoe-game-windows.zip"
-      
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: tictactoe-game-windows
-          path: tictactoe-game-windows.zip
-          retention-days: 30
-      
-      - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ github.ref_name }}
-        run: |
-          Write-Host "=== Debug Information ==="
-          Write-Host "TAG_NAME: $env:TAG_NAME"
-          Write-Host "GITHUB_REF: $env:GITHUB_REF"
-          Write-Host "Current directory: $(Get-Location)"
-          Write-Host "Files in directory:"
-          Get-ChildItem
-          Write-Host ""
-          
-          $releaseNotes = "Release $env:TAG_NAME`n`n"
-          $releaseNotes += "This release includes the Windows executable for the Tic Tac Toe game.`n`n"
-          $releaseNotes += "## Changes`n"
-          $releaseNotes += "- Automated build via GitHub Actions`n"
-          $releaseNotes += "- Windows executable package`n"
-          
-          $releaseNotes | Out-File -FilePath release_notes.txt -Encoding utf8
-          
-          Write-Host "=== Creating GitHub Release ==="
-          Write-Host "Running: gh release create $env:TAG_NAME tictactoe-game-windows.zip --title 'Release $env:TAG_NAME' --notes-file release_notes.txt"
-          
-          gh release create $env:TAG_NAME `
-            "tictactoe-game-windows.zip" `
-            --title "Release $env:TAG_NAME" `
-            --notes-file release_notes.txt
-          
-          Write-Host "=== Release Created Successfully ==="
+    - name: Checkout code
+      uses: actions/checkout@v6
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        cache: true
+    
+    - name: Install dependencies
+      run: flutter pub get
+      timeout-minutes: 10
+    
+    - name: Enable Windows desktop
+      run: flutter config --enable-windows-desktop
+    
+    - name: Generate Windows platform files
+      run: flutter create . --platforms windows
+    
+    - name: Build Windows executable
+      run: flutter build windows --release
+      timeout-minutes: 15
+    
+    - name: List build output
+      run: |
+        Get-ChildItem -Recurse build/windows/x64/runner/Release/
+    
+    - name: Create distribution package
+      run: |
+        $buildDir = "build/windows/x64/runner/Release"
+        $distDir = "${{ env.APP_NAME }}-windows"
+        
+        New-Item -ItemType Directory -Path $distDir -Force
+        Copy-Item -Path "$buildDir/*" -Destination $distDir -Recurse
+        
+        Compress-Archive -Path $distDir -DestinationPath "${{ env.APP_NAME }}-windows.zip"
+    
+    - name: Upload artifact (Directory)
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.APP_NAME }}-Windows-Directory
+        path: ${{ env.APP_NAME }}-windows/
+    
+    - name: Upload artifact (ZIP)
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.APP_NAME }}-Windows-ZIP
+        path: ${{ env.APP_NAME }}-windows.zip
+    
+    - name: Create Release (if tagged)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ${{ env.APP_NAME }}-windows.zip
+        generate_release_notes: true
+        token: ${{ secrets.GITHUB_TOKEN }}
