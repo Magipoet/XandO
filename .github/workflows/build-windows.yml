@@ -1,8 +1,10 @@
-name: Build Windows Executable
+name: Build and Release Windows Executable
 
 on:
   push:
     branches: [main, master]
+    tags:
+      - 'v*'
   pull_request:
     branches: [main, master]
   workflow_dispatch:
@@ -50,3 +52,14 @@ jobs:
           name: tictactoe-game-windows
           path: tictactoe-game-windows.zip
           retention-days: 30
+      
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: tictactoe-game-windows.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
