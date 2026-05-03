@@ -7,6 +7,12 @@ class BoardService {
   Piece? placePiece(Board board, Player player, int row, int col) {
     if (!board.isEmpty(row, col)) return null;
 
+    if (board.getPieceCount(player) >= GameRules.maxPiecesPerPlayer) {
+      final oldestPiece = board.playerPieces[player]!.first;
+      _removePiece(board, oldestPiece);
+      _updateRelativeOrders(board, player);
+    }
+
     final pieceId = '${player.name}_${DateTime.now().millisecondsSinceEpoch}';
     final relativeOrder = board.getPieceCount(player) + 1;
 
@@ -18,12 +24,6 @@ class BoardService {
       col: col,
       placedAt: DateTime.now(),
     );
-
-    if (board.getPieceCount(player) >= GameRules.maxPiecesPerPlayer) {
-      final oldestPiece = board.playerPieces[player]!.first;
-      _removePiece(board, oldestPiece);
-      _updateRelativeOrders(board, player);
-    }
 
     _addPiece(board, newPiece);
 
