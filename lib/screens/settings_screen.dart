@@ -148,12 +148,12 @@ class SettingsScreen extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      child: const Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               '提示',
               style: TextStyle(
                 fontSize: 14.0,
@@ -161,7 +161,7 @@ class SettingsScreen extends ConsumerWidget {
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 8.0),
+            SizedBox(height: 8.0),
             Text(
               '设置会自动保存，下次打开游戏时会恢复您的偏好设置。',
               style: TextStyle(

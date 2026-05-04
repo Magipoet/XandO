@@ -55,7 +55,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const SizedBox(width: 48.0),
-          Text(
+          const Text(
             '动态井字棋',
             style: TextStyle(
               fontSize: AppSizes.titleFontSize,
@@ -85,14 +85,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildActionButtons() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
+    return const Padding(
+      padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const UndoButton(),
-          const SizedBox(width: AppSizes.actionButtonSpacing),
-          const ResetButton(),
+          UndoButton(),
+          SizedBox(width: AppSizes.actionButtonSpacing),
+          ResetButton(),
         ],
       ),
     );
