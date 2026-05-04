@@ -15,6 +15,7 @@ class AppColors {
   // 状态颜色
   static const Color winHighlight = Color(0xFF4CAF50);
   static const Color buttonPrimary = Color(0xFF2196F3);
+  static const Color buttonSecondary = Color(0xFFFF9800);
   static const Color buttonText = Color(0xFFFFFFFF);
 
   // 透明度

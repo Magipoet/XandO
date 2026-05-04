@@ -13,14 +13,28 @@ final gameProvider = StateNotifierProvider<GameNotifier, GameState>((ref) {
 
 class GameNotifier extends StateNotifier<GameState> {
   final GameService _gameService;
+  final List<GameState> _history = [];
 
   GameNotifier(this._gameService) : super(GameState.initial());
 
+  bool get canUndo => _history.isNotEmpty && !state.isGameOver;
+
   void makeMove(int row, int col) {
+    if (state.isGameOver) return;
+    
+    _history.add(state.copyWith());
     state = _gameService.makeMove(state, row, col);
   }
 
+  void undo() {
+    if (_history.isEmpty) return;
+    if (state.isGameOver) return;
+    
+    state = _history.removeLast();
+  }
+
   void resetGame() {
+    _history.clear();
     state = _gameService.resetGame();
   }
 

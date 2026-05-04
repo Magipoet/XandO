@@ -12,6 +12,7 @@ class AppSizes {
   static const double orderNumberFontSize = 12.0;
 
   // 文字相关
+  static const double titleFontSize = 24.0;
   static const double statusBarFontSize = 18.0;
   static const double buttonFontSize = 16.0;
   static const double winDialogTitleFontSize = 24.0;
@@ -22,7 +23,10 @@ class AppSizes {
   static const double buttonBorderRadius = 8.0;
 
   // 间距相关
-  static const double statusBarTopMargin = 24.0;
+  static const double titleTopMargin = 16.0;
+  static const double titleToStatusSpacing = 8.0;
+  static const double statusBarTopMargin = 16.0;
+  static const double actionButtonSpacing = 16.0;
   static const double resetButtonBottomMargin = 24.0;
   static const double winDialogPadding = 24.0;
   static const double winDialogBorderRadius = 16.0;

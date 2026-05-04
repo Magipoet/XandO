@@ -10,6 +10,8 @@ class PieceWidget extends StatelessWidget {
   final Player? currentPlayer;
   final bool isHovering;
   final bool isWinning;
+  final double pieceFontSize;
+  final double orderNumberFontSize;
   final VoidCallback? onTap;
 
   const PieceWidget({
@@ -18,6 +20,8 @@ class PieceWidget extends StatelessWidget {
     this.currentPlayer,
     this.isHovering = false,
     this.isWinning = false,
+    required this.pieceFontSize,
+    required this.orderNumberFontSize,
     this.onTap,
   });
 
@@ -54,7 +58,7 @@ class PieceWidget extends StatelessWidget {
         Text(
           piece!.owner.symbol,
           style: TextStyle(
-            fontSize: AppSizes.pieceFontSize,
+            fontSize: pieceFontSize,
             fontWeight: FontWeight.bold,
             color: color.withValues(alpha: opacity),
           ),
@@ -75,7 +79,7 @@ class PieceWidget extends StatelessWidget {
           child: Text(
             piece!.relativeOrder.toString(),
             style: TextStyle(
-              fontSize: AppSizes.orderNumberFontSize,
+              fontSize: orderNumberFontSize,
               fontWeight: FontWeight.bold,
               color: color.withValues(alpha: AppColors.opacityOrderNumber),
             ),
@@ -89,7 +93,7 @@ class PieceWidget extends StatelessWidget {
     return Text(
       currentPlayer!.symbol,
       style: TextStyle(
-        fontSize: AppSizes.pieceFontSize,
+        fontSize: pieceFontSize,
         fontWeight: FontWeight.bold,
         color: _getPlayerColor(currentPlayer!)
             .withValues(alpha: AppColors.opacityHoverPreview),
