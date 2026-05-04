@@ -51,42 +51,42 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         left: 16.0,
         right: 16.0,
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const Positioned.fill(
-            child: Center(
-              child: Text(
-                '动态井字棋',
-                style: TextStyle(
-                  fontSize: AppSizes.titleFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 48.0,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const Text(
+              '动态井字棋',
+              style: TextStyle(
+                fontSize: AppSizes.titleFontSize,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-          Positioned(
-            right: 0,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.help_outline),
-                  color: AppColors.textPrimary,
-                  onPressed: () => _showHelpDialog(),
-                  tooltip: '游戏玩法',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings_outlined),
-                  color: AppColors.textPrimary,
-                  onPressed: () => _navigateToSettings(),
-                  tooltip: '设置',
-                ),
-              ],
+            Positioned(
+              right: 0,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.help_outline),
+                    color: AppColors.textPrimary,
+                    onPressed: () => _showHelpDialog(),
+                    tooltip: '游戏玩法',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined),
+                    color: AppColors.textPrimary,
+                    onPressed: () => _navigateToSettings(),
+                    tooltip: '设置',
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
