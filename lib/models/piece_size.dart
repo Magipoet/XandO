@@ -19,11 +19,11 @@ extension PieceSizeExtension on PieceSize {
   double get cellRatio {
     switch (this) {
       case PieceSize.small:
-        return 0.2;
-      case PieceSize.standard:
         return 1.0 / 3.0;
-      case PieceSize.large:
+      case PieceSize.standard:
         return 0.5;
+      case PieceSize.large:
+        return 2.0 / 3.0;
     }
   }
 }

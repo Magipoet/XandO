@@ -51,33 +51,40 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         left: 16.0,
         right: 16.0,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          const SizedBox(width: 48.0),
-          const Text(
-            '动态井字棋',
-            style: TextStyle(
-              fontSize: AppSizes.titleFontSize,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+          const Positioned.fill(
+            child: Center(
+              child: Text(
+                '动态井字棋',
+                style: TextStyle(
+                  fontSize: AppSizes.titleFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
             ),
           ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.help_outline),
-                color: AppColors.textPrimary,
-                onPressed: () => _showHelpDialog(),
-                tooltip: '游戏玩法',
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                color: AppColors.textPrimary,
-                onPressed: () => _navigateToSettings(),
-                tooltip: '设置',
-              ),
-            ],
+          Positioned(
+            right: 0,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.help_outline),
+                  color: AppColors.textPrimary,
+                  onPressed: () => _showHelpDialog(),
+                  tooltip: '游戏玩法',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  color: AppColors.textPrimary,
+                  onPressed: () => _navigateToSettings(),
+                  tooltip: '设置',
+                ),
+              ],
+            ),
           ),
         ],
       ),
