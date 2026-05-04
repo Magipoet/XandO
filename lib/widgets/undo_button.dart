@@ -9,8 +9,8 @@ class UndoButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final gameNotifier = ref.watch(gameProvider.notifier);
-    final canUndo = gameNotifier.canUndo;
+    ref.watch(gameProvider);
+    final canUndo = ref.read(gameProvider.notifier).canUndo;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
