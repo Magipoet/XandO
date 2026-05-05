@@ -10,24 +10,35 @@ class BoardService {
     if (board.getPieceCount(player) >= GameRules.maxPiecesPerPlayer) {
       final oldestPiece = board.playerPieces[player]!.first;
       _removePiece(board, oldestPiece);
-      _updateRelativeOrders(board, player);
     }
 
     final pieceId = '${player.name}_${DateTime.now().millisecondsSinceEpoch}';
-    final relativeOrder = board.getPieceCount(player) + 1;
-
     final newPiece = Piece(
       id: pieceId,
       owner: player,
-      relativeOrder: relativeOrder,
+      relativeOrder: 1,
       row: row,
       col: col,
       placedAt: DateTime.now(),
     );
 
+    _incrementExistingOrders(board, player);
+
     _addPiece(board, newPiece);
 
     return newPiece;
+  }
+
+  void _incrementExistingOrders(Board board, Player player) {
+    final pieces = board.playerPieces[player]!;
+    for (int i = 0; i < pieces.length; i++) {
+      pieces[i] = pieces[i].copyWith(relativeOrder: pieces[i].relativeOrder + 1);
+      
+      final cellPiece = board.cells[pieces[i].row][pieces[i].col];
+      if (cellPiece != null && cellPiece.id == pieces[i].id) {
+        board.cells[pieces[i].row][pieces[i].col] = pieces[i];
+      }
+    }
   }
 
   void _addPiece(Board board, Piece piece) {
@@ -43,7 +54,7 @@ class BoardService {
   void _updateRelativeOrders(Board board, Player player) {
     final pieces = board.playerPieces[player]!;
     for (int i = 0; i < pieces.length; i++) {
-      pieces[i] = pieces[i].copyWith(relativeOrder: i + 1);
+      pieces[i] = pieces[i].copyWith(relativeOrder: pieces.length - i);
       
       final cellPiece = board.cells[pieces[i].row][pieces[i].col];
       if (cellPiece != null && cellPiece.id == pieces[i].id) {

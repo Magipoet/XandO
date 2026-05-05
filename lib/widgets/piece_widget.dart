@@ -129,11 +129,11 @@ class PieceWidget extends StatelessWidget {
     if (piece == null) return 1.0;
     switch (piece!.relativeOrder) {
       case 1:
-        return AppColors.opacityOldest;
+        return AppColors.opacityNewest;
       case 2:
         return AppColors.opacityMiddle;
       case 3:
-        return AppColors.opacityNewest;
+        return AppColors.opacityOldest;
       default:
         return AppColors.opacityNewest;
     }
