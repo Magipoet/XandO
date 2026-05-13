@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tictactoe_game/constants/app_colors.dart';
 import 'package:tictactoe_game/constants/app_sizes.dart';
+import 'package:tictactoe_game/models/game_state.dart';
 import 'package:tictactoe_game/providers/game_provider.dart';
 import 'package:tictactoe_game/widgets/board_widget.dart';
 import 'package:tictactoe_game/widgets/help_dialog.dart';
@@ -46,7 +47,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildTopBar(gameState) {
+  Widget _buildTopBar(GameState gameState) {
     return Padding(
       padding: const EdgeInsets.only(
         top: AppSizes.titleTopMargin,
@@ -55,14 +56,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 48.0,
+        height: 64.0,
         child: Stack(
           alignment: Alignment.center,
           children: [
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   '动态井字棋',
                   style: TextStyle(
                     fontSize: AppSizes.titleFontSize,
@@ -70,6 +71,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     color: AppColors.textPrimary,
                   ),
                 ),
+                const SizedBox(height: 2.0),
                 Text(
                   gameState.gameMode.displayName,
                   style: TextStyle(
@@ -84,6 +86,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
             Positioned(
               right: 0,
+              top: 8.0,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -94,18 +97,36 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         : AppColors.textPrimary,
                     onPressed: () => _showModeSelector(),
                     tooltip: '游戏模式',
+                    iconSize: 24.0,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 40.0,
+                      minHeight: 40.0,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.help_outline),
                     color: AppColors.textPrimary,
                     onPressed: () => _showHelpDialog(),
                     tooltip: '游戏玩法',
+                    iconSize: 24.0,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 40.0,
+                      minHeight: 40.0,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings_outlined),
                     color: AppColors.textPrimary,
                     onPressed: () => _navigateToSettings(),
                     tooltip: '设置',
+                    iconSize: 24.0,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 40.0,
+                      minHeight: 40.0,
+                    ),
                   ),
                 ],
               ),
@@ -116,11 +137,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildActionButtons(gameState) {
+  Widget _buildActionButtons(GameState gameState) {
     if (gameState.isFunMode()) {
-      return const Padding(
-        padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
-        child: Row(
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ResetButton(),
@@ -129,9 +150,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       );
     }
 
-    return const Padding(
-      padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           UndoButton(),
@@ -142,7 +163,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  void _listenForWin(gameState) {
+  void _listenForWin(GameState gameState) {
     if (gameState.isGameOver && gameState.winner != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         WinDialog.show(context, gameState.winner!);
