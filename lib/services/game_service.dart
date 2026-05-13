@@ -46,15 +46,15 @@ class GameService {
     return GameState.initial(mode: mode ?? GameMode.normal);
   }
 
-  GameState useFunUndo(GameState currentState, List<GameState> history) {
+  GameState useFunUndo(GameState currentState, GameState previousState, Player player) {
     if (!currentState.isFunMode()) return currentState;
     if (currentState.isGameOver) return currentState;
-    if (history.isEmpty) return currentState;
-    if (!currentState.canUseAbility(AbilityType.undo)) return currentState;
+    if (!currentState.funModeState!.canUseAbility(player, AbilityType.undo)) {
+      return currentState;
+    }
 
-    final previousState = history.last;
     final newFunModeState =
-        currentState.funModeState!.useAbility(currentState.currentPlayer, AbilityType.undo);
+        currentState.funModeState!.useAbility(player, AbilityType.undo);
 
     return previousState.copyWith(
       funModeState: newFunModeState,

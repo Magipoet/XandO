@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tictactoe_game/models/ability.dart';
 import 'package:tictactoe_game/models/game_mode.dart';
 import 'package:tictactoe_game/models/game_state.dart';
+import 'package:tictactoe_game/models/player.dart';
 import 'package:tictactoe_game/services/game_service.dart';
 
 final gameServiceProvider = Provider<GameService>((ref) {
@@ -21,8 +22,17 @@ class GameNotifier extends StateNotifier<GameState> {
 
   bool get canUndo => _history.isNotEmpty && !state.isGameOver;
 
+  Player? get lastPlayer {
+    if (_history.isEmpty) return null;
+    return _history.last.currentPlayer;
+  }
+
   bool canUseAbility(AbilityType ability) {
-    return state.canUseAbility(ability);
+    if (!state.isFunMode()) return false;
+    if (state.isGameOver) return false;
+    if (_history.isEmpty) return false;
+    final lastPlayer = _history.last.currentPlayer;
+    return state.funModeState!.canUseAbility(lastPlayer, ability);
   }
 
   bool get isWaitingForFreezeTarget => state.isWaitingForFreezeTarget();
@@ -54,16 +64,25 @@ class GameNotifier extends StateNotifier<GameState> {
     if (!state.isFunMode()) return;
     if (_history.isEmpty) return;
     if (state.isGameOver) return;
-    if (!state.canUseAbility(AbilityType.undo)) return;
 
-    _history.removeLast();
-    state = _gameService.useFunUndo(state, _history);
+    final lastPlayer = _history.last.currentPlayer;
+    if (!state.funModeState!.canUseAbility(lastPlayer, AbilityType.undo)) {
+      return;
+    }
+
+    final previousState = _history.removeLast();
+    state = _gameService.useFunUndo(state, previousState, lastPlayer);
   }
 
   void startFreezeSelection() {
     if (!state.isFunMode()) return;
     if (state.isGameOver) return;
-    if (!state.canUseAbility(AbilityType.freeze)) return;
+    if (_history.isEmpty) return;
+
+    final lastPlayer = _history.last.currentPlayer;
+    if (!state.funModeState!.canUseAbility(lastPlayer, AbilityType.freeze)) {
+      return;
+    }
 
     state = _gameService.startFreezeSelection(state);
   }

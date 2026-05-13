@@ -30,10 +30,13 @@ class PlayerAbilityPanel extends ConsumerWidget {
     final funState = gameState.funModeState!;
     final abilities = funState.getAbilities(player);
     final isCurrentPlayer = gameState.currentPlayer == player;
+    final lastPlayer = gameNotifier.lastPlayer;
+    final isLastPlayer = lastPlayer == player;
     final isWaiting = funState.waitingForFreezeTarget;
 
-    final canUndo = isCurrentPlayer && abilities.canUse(AbilityType.undo) && !isWaiting && !gameState.isGameOver;
-    final canFreeze = isCurrentPlayer && abilities.canUse(AbilityType.freeze) && !isWaiting && !gameState.isGameOver;
+    final canUse = isLastPlayer && abilities.canUse(AbilityType.undo) && !isWaiting;
+    final canUndo = canUse;
+    final canFreeze = canUse;
 
     return Container(
       padding: const EdgeInsets.all(12.0),
