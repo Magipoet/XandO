@@ -4,6 +4,7 @@ import 'package:tictactoe_game/constants/app_colors.dart';
 import 'package:tictactoe_game/constants/app_sizes.dart';
 import 'package:tictactoe_game/models/game_mode.dart';
 import 'package:tictactoe_game/models/game_state.dart';
+import 'package:tictactoe_game/models/player.dart';
 import 'package:tictactoe_game/providers/game_provider.dart';
 import 'package:tictactoe_game/widgets/board_widget.dart';
 import 'package:tictactoe_game/widgets/help_dialog.dart';
@@ -31,20 +32,85 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBar(gameState),
-            const StatusBar(),
-            if (gameState.isFunMode()) const FunModeAbilityBar(),
-            const Spacer(),
-            const Center(
-              child: BoardWidget(),
-            ),
-            const Spacer(),
-            _buildActionButtons(gameState),
-          ],
-        ),
+        child: _buildLayout(gameState),
       ),
+    );
+  }
+
+  Widget _buildLayout(GameState gameState) {
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final screenWidth = mediaQuery.size.width;
+    final isDesktop = screenWidth > 800 || isLandscape;
+
+    if (gameState.isFunMode() && isDesktop) {
+      return _buildDesktopLayout(gameState);
+    } else {
+      return _buildMobileLayout(gameState);
+    }
+  }
+
+  Widget _buildDesktopLayout(GameState gameState) {
+    return Column(
+      children: [
+        _buildTopBar(gameState),
+        const StatusBar(),
+        if (gameState.isFunMode()) const FreezeTargetHint(),
+        const SizedBox(height: 8.0),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: PlayerAbilityPanel(
+                  player: Player.x,
+                  direction: Axis.horizontal,
+                ),
+              ),
+              const Center(
+                child: BoardWidget(),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: PlayerAbilityPanel(
+                  player: Player.o,
+                  direction: Axis.horizontal,
+                ),
+              ),
+            ],
+          ),
+        ),
+        _buildActionButtons(gameState),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout(GameState gameState) {
+    return Column(
+      children: [
+        _buildTopBar(gameState),
+        const StatusBar(),
+        if (gameState.isFunMode()) ...[
+          const FreezeTargetHint(),
+          const SizedBox(height: 8.0),
+          PlayerAbilityPanel(
+            player: Player.x,
+            direction: Axis.vertical,
+          ),
+        ],
+        const Spacer(),
+        const Center(
+          child: BoardWidget(),
+        ),
+        const Spacer(),
+        if (gameState.isFunMode())
+          PlayerAbilityPanel(
+            player: Player.o,
+            direction: Axis.vertical,
+          ),
+        _buildActionButtons(gameState),
+      ],
     );
   }
 

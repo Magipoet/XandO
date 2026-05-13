@@ -4,103 +4,168 @@ import 'package:tictactoe_game/constants/app_colors.dart';
 import 'package:tictactoe_game/constants/app_sizes.dart';
 import 'package:tictactoe_game/models/ability.dart';
 import 'package:tictactoe_game/models/game_mode.dart';
+import 'package:tictactoe_game/models/game_state.dart';
+import 'package:tictactoe_game/models/player.dart';
 import 'package:tictactoe_game/providers/game_provider.dart';
 
-class FunModeAbilityBar extends ConsumerWidget {
-  const FunModeAbilityBar({super.key});
+class PlayerAbilityPanel extends ConsumerWidget {
+  final Player player;
+  final Axis direction;
+
+  const PlayerAbilityPanel({
+    super.key,
+    required this.player,
+    required this.direction,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(gameProvider);
+    final gameState = ref.watch(gameProvider);
     final gameNotifier = ref.read(gameProvider.notifier);
-    final gameState = ref.read(gameProvider);
 
-    if (!gameState.isFunMode()) {
+    if (!gameState.isFunMode() || gameState.funModeState == null) {
       return const SizedBox.shrink();
     }
 
-    final canUndo = gameNotifier.canUseAbility(AbilityType.undo);
-    final canFreeze = gameNotifier.canUseAbility(AbilityType.freeze);
-    final isWaiting = gameNotifier.isWaitingForFreezeTarget;
+    final funState = gameState.funModeState!;
+    final abilities = funState.getAbilities(player);
+    final isCurrentPlayer = gameState.currentPlayer == player;
+    final isWaiting = funState.waitingForFreezeTarget;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isWaiting) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: BoxDecoration(
-                color: AppColors.buttonSecondary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AppColors.buttonSecondary),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    '请选择要固定的空格子',
-                    style: TextStyle(
-                      fontSize: AppSizes.buttonFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 12.0),
-                  TextButton(
-                    onPressed: () => gameNotifier.cancelFreezeSelection(),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                      backgroundColor: AppColors.textSecondary.withValues(alpha: 0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                    ),
-                    child: const Text(
-                      '取消',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8.0),
-          ],
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _AbilityButton(
-                ability: AbilityType.undo,
-                enabled: canUndo && !isWaiting,
-                onPressed: () => gameNotifier.useFunUndo(),
-              ),
-              const SizedBox(width: AppSizes.actionButtonSpacing),
-              _AbilityButton(
-                ability: AbilityType.freeze,
-                enabled: canFreeze && !isWaiting,
-                onPressed: () => gameNotifier.startFreezeSelection(),
-              ),
-            ],
-          ),
-        ],
+    final canUndo = isCurrentPlayer && abilities.canUse(AbilityType.undo) && !isWaiting && !gameState.isGameOver;
+    final canFreeze = isCurrentPlayer && abilities.canUse(AbilityType.freeze) && !isWaiting && !gameState.isGameOver;
+
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: AppColors.boardBackground,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: isCurrentPlayer
+              ? (player == Player.x ? AppColors.playerX : AppColors.playerO)
+              : AppColors.boardLines.withValues(alpha: 0.3),
+          width: isCurrentPlayer ? 2.0 : 1.0,
+        ),
       ),
+      child: direction == Axis.horizontal
+          ? _buildHorizontalLayout(player, abilities, canUndo, canFreeze, gameNotifier)
+          : _buildVerticalLayout(player, abilities, canUndo, canFreeze, gameNotifier),
+    );
+  }
+
+  Widget _buildHorizontalLayout(
+    Player player,
+    PlayerAbilities abilities,
+    bool canUndo,
+    bool canFreeze,
+    GameNotifier gameNotifier,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _PlayerTitle(player: player),
+        const SizedBox(height: 12.0),
+        _AbilityButton(
+          ability: AbilityType.undo,
+          count: abilities.getUses(AbilityType.undo),
+          enabled: canUndo,
+          onPressed: () => gameNotifier.useFunUndo(),
+          vertical: true,
+        ),
+        const SizedBox(height: 12.0),
+        _AbilityButton(
+          ability: AbilityType.freeze,
+          count: abilities.getUses(AbilityType.freeze),
+          enabled: canFreeze,
+          onPressed: () => gameNotifier.startFreezeSelection(),
+          vertical: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerticalLayout(
+    Player player,
+    PlayerAbilities abilities,
+    bool canUndo,
+    bool canFreeze,
+    GameNotifier gameNotifier,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _PlayerTitle(player: player),
+        const SizedBox(height: 8.0),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _AbilityButton(
+              ability: AbilityType.undo,
+              count: abilities.getUses(AbilityType.undo),
+              enabled: canUndo,
+              onPressed: () => gameNotifier.useFunUndo(),
+              vertical: false,
+            ),
+            const SizedBox(width: AppSizes.actionButtonSpacing),
+            _AbilityButton(
+              ability: AbilityType.freeze,
+              count: abilities.getUses(AbilityType.freeze),
+              enabled: canFreeze,
+              onPressed: () => gameNotifier.startFreezeSelection(),
+              vertical: false,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _PlayerTitle extends StatelessWidget {
+  final Player player;
+
+  const _PlayerTitle({required this.player});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          player.name,
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            color: player == Player.x ? AppColors.playerX : AppColors.playerO,
+          ),
+        ),
+        const SizedBox(width: 4.0),
+        Text(
+          player.symbol,
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+            color: player == Player.x ? AppColors.playerX : AppColors.playerO,
+          ),
+        ),
+      ],
     );
   }
 }
 
 class _AbilityButton extends StatelessWidget {
   final AbilityType ability;
+  final int count;
   final bool enabled;
   final VoidCallback onPressed;
+  final bool vertical;
 
   const _AbilityButton({
     required this.ability,
+    required this.count,
     required this.enabled,
     required this.onPressed,
+    required this.vertical,
   });
 
   @override
@@ -114,8 +179,10 @@ class _AbilityButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: enabled ? bgColor : AppColors.textSecondary.withValues(alpha: 0.3),
           foregroundColor: AppColors.buttonText,
-          minimumSize: const Size(100, AppSizes.buttonHeight),
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          minimumSize: vertical
+              ? const Size(80, 72)
+              : const Size(100, AppSizes.buttonHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.buttonBorderRadius),
           ),
@@ -125,9 +192,9 @@ class _AbilityButton extends StatelessWidget {
           style: const TextStyle(fontSize: 18.0),
         ),
         label: Text(
-          ability.displayName,
-          style: const TextStyle(
-            fontSize: AppSizes.buttonFontSize,
+          ability.getDisplayNameWithCount(count),
+          style: TextStyle(
+            fontSize: vertical ? 12.0 : AppSizes.buttonFontSize,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -142,6 +209,60 @@ class _AbilityButton extends StatelessWidget {
       case AbilityType.freeze:
         return AppColors.buttonSecondary;
     }
+  }
+}
+
+class FreezeTargetHint extends ConsumerWidget {
+  const FreezeTargetHint({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gameState = ref.watch(gameProvider);
+    final gameNotifier = ref.read(gameProvider.notifier);
+
+    if (!gameState.isFunMode() || !gameState.isWaitingForFreezeTarget()) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: AppColors.buttonSecondary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppColors.buttonSecondary),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '请选择要固定的空格子',
+            style: TextStyle(
+              fontSize: AppSizes.buttonFontSize,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 12.0),
+          TextButton(
+            onPressed: () => gameNotifier.cancelFreezeSelection(),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              backgroundColor: AppColors.textSecondary.withValues(alpha: 0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+            ),
+            child: const Text(
+              '取消',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

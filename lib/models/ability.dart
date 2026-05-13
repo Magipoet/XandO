@@ -30,4 +30,8 @@ extension AbilityTypeExtension on AbilityType {
         return '🔒';
     }
   }
+
+  String getDisplayNameWithCount(int count) {
+    return '$displayName:$count';
+  }
 }
