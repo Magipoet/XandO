@@ -88,7 +88,7 @@ class GameNotifier extends StateNotifier<GameState> {
     }
 
     _freezeInitiator = lastPlayer;
-    state = _gameService.startFreezeSelection(state);
+    state = _gameService.startFreezeSelection(state, lastPlayer);
   }
 
   void cancelFreezeSelection() {

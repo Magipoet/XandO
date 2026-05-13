@@ -61,10 +61,12 @@ class GameService {
     );
   }
 
-  GameState startFreezeSelection(GameState currentState) {
+  GameState startFreezeSelection(GameState currentState, Player player) {
     if (!currentState.isFunMode()) return currentState;
     if (currentState.isGameOver) return currentState;
-    if (!currentState.canUseAbility(AbilityType.freeze)) return currentState;
+    if (!currentState.funModeState!.canUseAbility(player, AbilityType.freeze)) {
+      return currentState;
+    }
     if (currentState.isWaitingForFreezeTarget()) return currentState;
 
     return currentState.copyWith(
