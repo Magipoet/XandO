@@ -12,7 +12,6 @@ class PieceWidget extends StatelessWidget {
   final bool isWinning;
   final double pieceFontSize;
   final double orderNumberFontSize;
-  final VoidCallback? onTap;
 
   const PieceWidget({
     super.key,
@@ -22,27 +21,25 @@ class PieceWidget extends StatelessWidget {
     this.isWinning = false,
     required this.pieceFontSize,
     required this.orderNumberFontSize,
-    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: MouseRegion(
-        cursor: _getCursor(),
-        child: Container(
-          decoration: BoxDecoration(
-            color: _getBackgroundColor(),
-            border: _getBorder(),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (piece != null) _buildPieceContent()
-              else if (isHovering && currentPlayer != null) _buildHoverPreview(),
-            ],
-          ),
+    return MouseRegion(
+      cursor: _getCursor(),
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: _getBackgroundColor(),
+          border: _getBorder(),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (piece != null) _buildPieceContent()
+            else if (isHovering && currentPlayer != null) _buildHoverPreview(),
+          ],
         ),
       ),
     );

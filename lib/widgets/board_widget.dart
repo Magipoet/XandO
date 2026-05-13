@@ -119,14 +119,15 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                         ),
                         child: Stack(
                           children: [
-                            PieceWidget(
-                              piece: piece,
-                              currentPlayer: gameState.currentPlayer,
-                              isHovering: isHovering && !isFrozen,
-                              isWinning: isWinning,
-                              pieceFontSize: pieceFontSize,
-                              orderNumberFontSize: orderNumberFontSize,
-                              onTap: () {},
+                            Positioned.fill(
+                              child: PieceWidget(
+                                piece: piece,
+                                currentPlayer: gameState.currentPlayer,
+                                isHovering: isHovering && !isFrozen,
+                                isWinning: isWinning,
+                                pieceFontSize: pieceFontSize,
+                                orderNumberFontSize: orderNumberFontSize,
+                              ),
                             ),
                             if (isFrozen)
                               const Positioned(
