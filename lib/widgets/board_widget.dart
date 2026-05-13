@@ -31,6 +31,8 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
       winningPositions.addAll(line);
     }
 
+    final isWaitingForFreeze = gameState.isWaitingForFreezeTarget();
+
     return settingsAsync.when(
       loading: () => const CircularProgressIndicator(),
       error: (error, stack) => const Text('加载设置失败'),
@@ -72,10 +74,19 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                   final piece = gameState.board.getPiece(row, col);
                   final isWinning = winningPositions.contains((row, col));
                   final isHovering = _hoveringRow == row && _hoveringCol == col;
+                  final isFrozen = gameState.isCellFrozen(row, col);
+                  final canSelect = isWaitingForFreeze && piece == null;
 
                   return MouseRegion(
                     onEnter: (_) {
-                      if (!gameState.isGameOver && piece == null) {
+                      if (isWaitingForFreeze) {
+                        if (piece == null) {
+                          setState(() {
+                            _hoveringRow = row;
+                            _hoveringCol = col;
+                          });
+                        }
+                      } else if (!gameState.isGameOver && piece == null && !isFrozen) {
                         setState(() {
                           _hoveringRow = row;
                           _hoveringCol = col;
@@ -88,24 +99,46 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                         _hoveringCol = null;
                       });
                     },
-                    child: Container(
-                      width: cellSize,
-                      height: cellSize,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppColors.boardLines,
-                          width: AppSizes.cellBorderWidth,
+                    child: GestureDetector(
+                      onTap: () => _handleCellTap(row, col, piece, isFrozen, isWaitingForFreeze),
+                      child: Container(
+                        width: cellSize,
+                        height: cellSize,
+                        decoration: BoxDecoration(
+                          color: _getCellColor(isHovering, isFrozen, canSelect),
+                          border: Border.all(
+                            color: isFrozen
+                                ? AppColors.buttonSecondary
+                                : (canSelect && isHovering
+                                    ? AppColors.buttonSecondary
+                                    : AppColors.boardLines),
+                            width: isFrozen || (canSelect && isHovering) ? 2.0 : AppSizes.cellBorderWidth,
+                          ),
+                          borderRadius: BorderRadius.circular(4.0),
                         ),
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: PieceWidget(
-                        piece: piece,
-                        currentPlayer: gameState.currentPlayer,
-                        isHovering: isHovering,
-                        isWinning: isWinning,
-                        pieceFontSize: pieceFontSize,
-                        orderNumberFontSize: orderNumberFontSize,
-                        onTap: () => _handleCellTap(row, col),
+                        child: Stack(
+                          children: [
+                            PieceWidget(
+                              piece: piece,
+                              currentPlayer: gameState.currentPlayer,
+                              isHovering: isHovering && !isFrozen,
+                              isWinning: isWinning,
+                              pieceFontSize: pieceFontSize,
+                              orderNumberFontSize: orderNumberFontSize,
+                              onTap: () {},
+                            ),
+                            if (isFrozen)
+                              const Positioned(
+                                top: 4.0,
+                                right: 4.0,
+                                child: Icon(
+                                  Icons.lock,
+                                  size: 16.0,
+                                  color: AppColors.buttonSecondary,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -116,6 +149,19 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
         );
       },
     );
+  }
+
+  Color _getCellColor(bool isHovering, bool isFrozen, bool canSelect) {
+    if (isFrozen) {
+      return AppColors.buttonSecondary.withValues(alpha: 0.1);
+    }
+    if (canSelect && isHovering) {
+      return AppColors.buttonSecondary.withValues(alpha: 0.15);
+    }
+    if (isHovering) {
+      return AppColors.buttonPrimary.withValues(alpha: 0.1);
+    }
+    return Colors.transparent;
   }
 
   double _calculateBoardSize(BoxConstraints constraints, double widthRatio) {
@@ -137,10 +183,18 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
     return clampedWidth.clamp(0, availableHeight);
   }
 
-  void _handleCellTap(int row, int col) {
+  void _handleCellTap(int row, int col, Piece? piece, bool isFrozen, bool isWaitingForFreeze) {
     final gameState = ref.read(gameProvider);
     if (gameState.isGameOver) return;
-    if (!gameState.board.isEmpty(row, col)) return;
+
+    if (isWaitingForFreeze) {
+      if (piece != null) return;
+      ref.read(gameProvider.notifier).makeMove(row, col);
+      return;
+    }
+
+    if (piece != null) return;
+    if (isFrozen) return;
 
     ref.read(gameProvider.notifier).makeMove(row, col);
   }

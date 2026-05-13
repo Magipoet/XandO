@@ -9,6 +9,7 @@ import 'package:tictactoe_game/widgets/reset_button.dart';
 import 'package:tictactoe_game/widgets/status_bar.dart';
 import 'package:tictactoe_game/widgets/undo_button.dart';
 import 'package:tictactoe_game/widgets/win_dialog.dart';
+import 'package:tictactoe_game/widgets/fun_mode_abilities.dart';
 import 'package:tictactoe_game/screens/settings_screen.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
@@ -30,21 +31,22 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopBar(),
+            _buildTopBar(gameState),
             const StatusBar(),
+            if (gameState.isFunMode()) const FunModeAbilityBar(),
             const Spacer(),
             const Center(
               child: BoardWidget(),
             ),
             const Spacer(),
-            _buildActionButtons(),
+            _buildActionButtons(gameState),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(gameState) {
     return Padding(
       padding: const EdgeInsets.only(
         top: AppSizes.titleTopMargin,
@@ -57,19 +59,42 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const Text(
-              '动态井字棋',
-              style: TextStyle(
-                fontSize: AppSizes.titleFontSize,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '动态井字棋',
+                  style: TextStyle(
+                    fontSize: AppSizes.titleFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  gameState.gameMode.displayName,
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: gameState.isFunMode()
+                        ? AppColors.buttonSecondary
+                        : AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
             Positioned(
               right: 0,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  IconButton(
+                    icon: const Icon(Icons.sports_esports),
+                    color: gameState.isFunMode()
+                        ? AppColors.buttonSecondary
+                        : AppColors.textPrimary,
+                    onPressed: () => _showModeSelector(),
+                    tooltip: '游戏模式',
+                  ),
                   IconButton(
                     icon: const Icon(Icons.help_outline),
                     color: AppColors.textPrimary,
@@ -91,7 +116,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(gameState) {
+    if (gameState.isFunMode()) {
+      return const Padding(
+        padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ResetButton(),
+          ],
+        ),
+      );
+    }
+
     return const Padding(
       padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
       child: Row(
@@ -111,6 +148,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         WinDialog.show(context, gameState.winner!);
       });
     }
+  }
+
+  void _showModeSelector() {
+    GameModeSelector.show(context);
   }
 
   void _showHelpDialog() {
