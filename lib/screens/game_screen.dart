@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tictactoe_game/constants/app_colors.dart';
 import 'package:tictactoe_game/constants/app_sizes.dart';
+import 'package:tictactoe_game/models/game_mode.dart';
 import 'package:tictactoe_game/models/game_state.dart';
 import 'package:tictactoe_game/providers/game_provider.dart';
 import 'package:tictactoe_game/widgets/board_widget.dart';
