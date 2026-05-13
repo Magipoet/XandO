@@ -17,6 +17,7 @@ final gameProvider = StateNotifierProvider<GameNotifier, GameState>((ref) {
 class GameNotifier extends StateNotifier<GameState> {
   final GameService _gameService;
   final List<GameState> _history = [];
+  Player? _freezeInitiator;
 
   GameNotifier(this._gameService) : super(GameState.initial());
 
@@ -44,8 +45,10 @@ class GameNotifier extends StateNotifier<GameState> {
 
     if (state.isWaitingForFreezeTarget()) {
       if (!state.board.isEmpty(row, col)) return;
-      _history.add(state.copyWith());
-      state = _gameService.setFreezeTarget(state, row, col);
+      final initiator = _freezeInitiator;
+      if (initiator == null) return;
+      state = _gameService.setFreezeTarget(state, row, col, initiator);
+      _freezeInitiator = null;
       return;
     }
 
@@ -84,22 +87,26 @@ class GameNotifier extends StateNotifier<GameState> {
       return;
     }
 
+    _freezeInitiator = lastPlayer;
     state = _gameService.startFreezeSelection(state);
   }
 
   void cancelFreezeSelection() {
     if (!state.isWaitingForFreezeTarget()) return;
 
+    _freezeInitiator = null;
     state = _gameService.cancelFreezeSelection(state);
   }
 
   void resetGame({GameMode? mode}) {
     _history.clear();
+    _freezeInitiator = null;
     state = _gameService.resetGame(mode: mode ?? state.gameMode);
   }
 
   void switchGameMode(GameMode mode) {
     _history.clear();
+    _freezeInitiator = null;
     state = GameState.initial(mode: mode);
   }
 

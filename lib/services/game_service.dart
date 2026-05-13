@@ -81,15 +81,18 @@ class GameService {
     );
   }
 
-  GameState setFreezeTarget(GameState currentState, int row, int col) {
+  GameState setFreezeTarget(GameState currentState, int row, int col, Player player) {
     if (!currentState.isFunMode()) return currentState;
     if (currentState.isGameOver) return currentState;
     if (!currentState.isWaitingForFreezeTarget()) return currentState;
     if (!currentState.board.isEmpty(row, col)) return currentState;
+    if (!currentState.funModeState!.canUseAbility(player, AbilityType.freeze)) {
+      return currentState;
+    }
 
     final newFunModeState = currentState.funModeState!
-        .useAbility(currentState.currentPlayer, AbilityType.freeze)
-        .setFreezeTarget(row, col, currentState.currentPlayer);
+        .useAbility(player, AbilityType.freeze)
+        .setFreezeTarget(row, col, player);
 
     return currentState.copyWith(
       funModeState: newFunModeState,
