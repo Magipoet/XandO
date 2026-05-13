@@ -30,7 +30,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.tictactoe_game"
-    compileSdk 34
+    compileSdk 36
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -49,7 +49,7 @@ android {
     defaultConfig {
         applicationId "com.example.tictactoe_game"
         minSdk 21
-        targetSdk 34
+        targetSdk 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
