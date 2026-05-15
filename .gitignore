@@ -24,6 +24,12 @@
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
 # **/pubspec.lock
 # Uncomment the above line for library packages
+.pub-cache/
+.packages
+pubspec.lock
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
 
 # Build related
 **/android/
@@ -33,9 +39,6 @@
 **/web/
 **/windows/
 build/
-.dart_tool/
-.packages
-.pub/
 
 # Web related
 lib/generated_plugin_registrant.dart

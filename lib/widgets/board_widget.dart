@@ -76,6 +76,7 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                   final isWinning = winningPositions.contains((row, col));
                   final isHovering = _hoveringRow == row && _hoveringCol == col;
                   final isFrozen = gameState.isCellFrozen(row, col);
+                  final frozenOwner = gameState.getFrozenCellOwner(row, col);
                   final canSelect = isWaitingForFreeze && piece == null;
 
                   return MouseRegion(
@@ -106,10 +107,10 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                         width: cellSize,
                         height: cellSize,
                         decoration: BoxDecoration(
-                          color: _getCellColor(isHovering, isFrozen, canSelect),
+                          color: _getCellColor(isHovering, isFrozen, canSelect, frozenOwner),
                           border: Border.all(
                             color: isFrozen
-                                ? AppColors.buttonSecondary
+                                ? _getFrozenColor(frozenOwner)
                                 : (canSelect && isHovering
                                     ? AppColors.buttonSecondary
                                     : AppColors.boardLines),
@@ -130,13 +131,13 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                               ),
                             ),
                             if (isFrozen)
-                              const Positioned(
+                              Positioned(
                                 top: 4.0,
                                 right: 4.0,
                                 child: Icon(
                                   Icons.lock,
                                   size: 16.0,
-                                  color: AppColors.buttonSecondary,
+                                  color: _getFrozenColor(frozenOwner),
                                 ),
                               ),
                           ],
@@ -153,9 +154,16 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
     );
   }
 
-  Color _getCellColor(bool isHovering, bool isFrozen, bool canSelect) {
+  Color _getFrozenColor(Player? owner) {
+    if (owner == Player.x) {
+      return AppColors.playerX;
+    }
+    return AppColors.playerO;
+  }
+
+  Color _getCellColor(bool isHovering, bool isFrozen, bool canSelect, Player? frozenOwner) {
     if (isFrozen) {
-      return AppColors.buttonSecondary.withValues(alpha: 0.1);
+      return _getFrozenColor(frozenOwner).withValues(alpha: 0.1);
     }
     if (canSelect && isHovering) {
       return AppColors.buttonSecondary.withValues(alpha: 0.15);

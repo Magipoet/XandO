@@ -1,8 +1,6 @@
-import 'package:tictactoe_game/constants/game_rules.dart';
 import 'package:tictactoe_game/models/ability.dart';
 import 'package:tictactoe_game/models/board.dart';
 import 'package:tictactoe_game/models/game_mode.dart';
-import 'package:tictactoe_game/models/piece.dart';
 import 'package:tictactoe_game/models/player.dart';
 
 class PlayerAbilities {
@@ -235,5 +233,12 @@ class GameState {
     if (!isFunMode()) return false;
     if (funModeState == null) return false;
     return funModeState!.freezeState.isCellFrozen(row, col);
+  }
+
+  Player? getFrozenCellOwner(int row, int col) {
+    if (!isFunMode()) return null;
+    if (funModeState == null) return null;
+    if (!funModeState!.freezeState.isCellFrozen(row, col)) return null;
+    return funModeState!.freezeState.owner;
   }
 }
