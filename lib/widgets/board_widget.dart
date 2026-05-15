@@ -6,6 +6,7 @@ import 'package:tictactoe_game/constants/game_rules.dart';
 import 'package:tictactoe_game/models/board_size.dart';
 import 'package:tictactoe_game/models/piece.dart';
 import 'package:tictactoe_game/models/piece_size.dart';
+import 'package:tictactoe_game/models/player.dart';
 import 'package:tictactoe_game/providers/game_provider.dart';
 import 'package:tictactoe_game/providers/settings_provider.dart';
 import 'package:tictactoe_game/widgets/piece_widget.dart';
