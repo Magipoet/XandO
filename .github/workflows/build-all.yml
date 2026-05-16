@@ -382,6 +382,52 @@ jobs:
         echo "Files to be uploaded:"
         find ./release -type f
 
+    - name: Upload to Aliyun OSS
+      env:
+        ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+        ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+        ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+        ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+        VERSION: ${{ needs.pre-check.outputs.tag }}
+      run: |
+        echo "☁️  Uploading to Aliyun OSS..."
+        
+        # 检查阿里云 Secrets 是否配置
+        if [ -z "$ALIYUN_ACCESS_KEY_ID" ] || [ -z "$ALIYUN_ACCESS_KEY_SECRET" ] || [ -z "$ALIYUN_OSS_BUCKET" ] || [ -z "$ALIYUN_OSS_ENDPOINT" ]; then
+          echo "⚠️  Aliyun OSS secrets not configured, skipping upload"
+          exit 0
+        fi
+        
+        # 安装 ossutil
+        wget https://gosspublic.alicdn.com/ossutil/1.7.16/ossutil64 -O /usr/local/bin/ossutil
+        chmod +x /usr/local/bin/ossutil
+        
+        # 配置 ossutil
+        ossutil config -e "$ALIYUN_OSS_ENDPOINT" -i "$ALIYUN_ACCESS_KEY_ID" -k "$ALIYUN_ACCESS_KEY_SECRET"
+        
+        # 创建版本目录
+        OSS_PATH="releases/$VERSION"
+        
+        # 上传文件
+        for file in ./release/*; do
+          filename=$(basename "$file")
+          echo "Uploading $filename to oss://$ALIYUN_OSS_BUCKET/$OSS_PATH/$filename"
+          ossutil cp "$file" "oss://$ALIYUN_OSS_BUCKET/$OSS_PATH/$filename" -f
+        done
+        
+        # 列出生成的文件
+        echo ""
+        echo "✅ Files uploaded to Aliyun OSS:"
+        ossutil ls "oss://$ALIYUN_OSS_BUCKET/$OSS_PATH/"
+        
+        # 输出下载链接
+        echo ""
+        echo "📥 Download links:"
+        for file in ./release/*; do
+          filename=$(basename "$file")
+          echo "  https://$ALIYUN_OSS_BUCKET.$ALIYUN_OSS_ENDPOINT/$OSS_PATH/$filename"
+        done
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
