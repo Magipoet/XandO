@@ -51,65 +51,89 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildDesktopLayout(GameState gameState) {
-    return Column(
+    return Stack(
       children: [
-        _buildTopBar(gameState),
-        const StatusBar(),
-        if (gameState.isFunMode()) const FreezeTargetHint(),
-        const SizedBox(height: 8.0),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: PlayerAbilityPanel(
-                  player: Player.x,
-                  direction: Axis.horizontal,
-                ),
+        Column(
+          children: [
+            _buildTopBar(gameState),
+            const StatusBar(),
+            const SizedBox(height: 8.0),
+            const Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: PlayerAbilityPanel(
+                      player: Player.x,
+                      direction: Axis.horizontal,
+                    ),
+                  ),
+                  Center(
+                    child: BoardWidget(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: PlayerAbilityPanel(
+                      player: Player.o,
+                      direction: Axis.horizontal,
+                    ),
+                  ),
+                ],
               ),
-              const Center(
-                child: BoardWidget(),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: PlayerAbilityPanel(
-                  player: Player.o,
-                  direction: Axis.horizontal,
-                ),
-              ),
-            ],
-          ),
+            ),
+            _buildActionButtons(gameState),
+          ],
         ),
-        _buildActionButtons(gameState),
+        if (gameState.isFunMode())
+          Positioned(
+            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 20.0,
+            left: 0,
+            right: 0,
+            child: const Center(
+              child: FreezeTargetHint(),
+            ),
+          ),
       ],
     );
   }
 
   Widget _buildMobileLayout(GameState gameState) {
-    return Column(
+    return Stack(
       children: [
-        _buildTopBar(gameState),
-        const StatusBar(),
-        if (gameState.isFunMode()) ...[
-          const FreezeTargetHint(),
-          const SizedBox(height: 8.0),
-          PlayerAbilityPanel(
-            player: Player.x,
-            direction: Axis.vertical,
-          ),
-        ],
-        const Spacer(),
-        const Center(
-          child: BoardWidget(),
+        Column(
+          children: [
+            _buildTopBar(gameState),
+            const StatusBar(),
+            if (gameState.isFunMode()) ...[
+              const SizedBox(height: 8.0),
+              const PlayerAbilityPanel(
+                player: Player.x,
+                direction: Axis.vertical,
+              ),
+            ],
+            const Spacer(),
+            const Center(
+              child: BoardWidget(),
+            ),
+            const Spacer(),
+            if (gameState.isFunMode())
+              const PlayerAbilityPanel(
+                player: Player.o,
+                direction: Axis.vertical,
+              ),
+            _buildActionButtons(gameState),
+          ],
         ),
-        const Spacer(),
         if (gameState.isFunMode())
-          PlayerAbilityPanel(
-            player: Player.o,
-            direction: Axis.vertical,
+          Positioned(
+            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 20.0,
+            left: 0,
+            right: 0,
+            child: const Center(
+              child: FreezeTargetHint(),
+            ),
           ),
-        _buildActionButtons(gameState),
       ],
     );
   }
@@ -130,7 +154,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   '动态井字棋',
                   style: TextStyle(
                     fontSize: AppSizes.titleFontSize,
@@ -206,9 +230,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   Widget _buildActionButtons(GameState gameState) {
     if (gameState.isFunMode()) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
-        child: const Row(
+      return const Padding(
+        padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ResetButton(),
@@ -217,9 +241,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
-      child: const Row(
+    return const Padding(
+      padding: EdgeInsets.only(bottom: AppSizes.resetButtonBottomMargin),
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           UndoButton(),

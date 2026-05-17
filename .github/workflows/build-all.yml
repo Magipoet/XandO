@@ -166,19 +166,16 @@ jobs:
         
         Compress-Archive -Path $distDir -DestinationPath "${{ env.APP_NAME }}-windows.zip"
 
-    - name: Upload Windows ZIP as Artifact
-      uses: actions/upload-artifact@v7
+    - name: Upload Windows to GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
       with:
-        name: ${{ env.APP_NAME }}-Windows-ZIP
-        path: ${{ env.APP_NAME }}-windows.zip
-        retention-days: 90
-
-    - name: Upload Windows Directory as Artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ env.APP_NAME }}-Windows-Directory
-        path: ${{ env.APP_NAME }}-windows/
-        retention-days: 90
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        files: |
+          ${{ env.APP_NAME }}-windows.zip
+        generate_release_notes: true
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   build-android:
     name: Build Android Release APK
@@ -348,41 +345,8 @@ jobs:
         echo "✅ APK renamed to: ${{ env.APP_NAME }}-android-$APK_VERSION-release.apk"
         ls -la *.apk
 
-    - name: Upload APK as Artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ env.APP_NAME }}-Android-Release-APK
-        path: ${{ env.APP_NAME }}-android-*.apk
-        retention-days: 90
-
-  create-release:
-    name: Create GitHub Release
-    needs: [pre-check, build-windows, build-android]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-    - name: Download Windows Artifact
-      uses: actions/download-artifact@v7
-      with:
-        name: ${{ env.APP_NAME }}-Windows-ZIP
-        path: ./release
-
-    - name: Download Android Artifact
-      uses: actions/download-artifact@v7
-      with:
-        name: ${{ env.APP_NAME }}-Android-Release-APK
-        path: ./release
-
-    - name: List release assets
-      run: |
-        echo "📦 Release assets:"
-        ls -la ./release/
-        echo ""
-        echo "Files to be uploaded:"
-        find ./release -type f
-
     - name: Upload to Aliyun OSS
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
         ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
@@ -392,46 +356,41 @@ jobs:
       run: |
         echo "☁️  Uploading to Aliyun OSS..."
         
-        # 检查阿里云 Secrets 是否配置
         if [ -z "$ALIYUN_ACCESS_KEY_ID" ] || [ -z "$ALIYUN_ACCESS_KEY_SECRET" ] || [ -z "$ALIYUN_OSS_BUCKET" ] || [ -z "$ALIYUN_OSS_ENDPOINT" ]; then
           echo "⚠️  Aliyun OSS secrets not configured, skipping upload"
           exit 0
         fi
         
-        # 安装 ossutil
         wget https://gosspublic.alicdn.com/ossutil/1.7.16/ossutil64 -O /usr/local/bin/ossutil
         chmod +x /usr/local/bin/ossutil
         
-        # 配置 ossutil
         ossutil config -e "$ALIYUN_OSS_ENDPOINT" -i "$ALIYUN_ACCESS_KEY_ID" -k "$ALIYUN_ACCESS_KEY_SECRET"
         
-        # 创建版本目录
         OSS_PATH="releases/$VERSION"
         
-        # 上传文件
-        for file in ./release/*; do
+        for file in ${{ env.APP_NAME }}-android-*.apk; do
           filename=$(basename "$file")
           echo "Uploading $filename to oss://$ALIYUN_OSS_BUCKET/$OSS_PATH/$filename"
           ossutil cp "$file" "oss://$ALIYUN_OSS_BUCKET/$OSS_PATH/$filename" -f
         done
         
-        # 列出生成的文件
         echo ""
         echo "✅ Files uploaded to Aliyun OSS:"
         ossutil ls "oss://$ALIYUN_OSS_BUCKET/$OSS_PATH/"
         
-        # 输出下载链接
         echo ""
         echo "📥 Download links:"
-        for file in ./release/*; do
+        for file in ${{ env.APP_NAME }}-android-*.apk; do
           filename=$(basename "$file")
           echo "  https://$ALIYUN_OSS_BUCKET.$ALIYUN_OSS_ENDPOINT/$OSS_PATH/$filename"
         done
 
-    - name: Create GitHub Release
+    - name: Upload Android to GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
         files: |
-          ./release/*
-        generate_release_notes: true
+          ${{ env.APP_NAME }}-android-*.apk
         token: ${{ secrets.GITHUB_TOKEN }}
