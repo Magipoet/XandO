@@ -45,8 +45,8 @@ class PlayerAbilityPanel extends ConsumerWidget {
         border: Border.all(
           color: isCurrentPlayer
               ? (player == Player.x ? AppColors.playerX : AppColors.playerO)
-              : AppColors.boardLines.withValues(alpha: 0.3),
-          width: isCurrentPlayer ? 2.0 : 1.0,
+              : Colors.transparent,
+          width: 2.0,
         ),
       ),
       child: direction == Axis.horizontal
