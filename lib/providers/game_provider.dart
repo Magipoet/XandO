@@ -38,6 +38,8 @@ class GameNotifier extends StateNotifier<GameState> {
 
   bool get isWaitingForFreezeTarget => state.isWaitingForFreezeTarget();
 
+  Player? get freezeInitiator => _freezeInitiator;
+
   GameMode get gameMode => state.gameMode;
 
   void makeMove(int row, int col) {

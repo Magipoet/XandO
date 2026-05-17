@@ -79,6 +79,7 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                   final isFrozen = gameState.isCellFrozen(row, col);
                   final frozenOwner = gameState.getFrozenCellOwner(row, col);
                   final canSelect = isWaitingForFreeze && piece == null;
+                  final freezeInitiator = ref.read(gameProvider.notifier).freezeInitiator;
 
                   return MouseRegion(
                     onEnter: (_) {
@@ -108,12 +109,12 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
                         width: cellSize,
                         height: cellSize,
                         decoration: BoxDecoration(
-                          color: _getCellColor(isHovering, isFrozen, canSelect, frozenOwner),
+                          color: _getCellColor(isHovering, isFrozen, canSelect, frozenOwner, freezeInitiator),
                           border: Border.all(
                             color: isFrozen
                                 ? _getFrozenColor(frozenOwner)
                                 : (canSelect && isHovering
-                                    ? AppColors.buttonSecondary
+                                    ? _getFreezeInitiatorColor(freezeInitiator)
                                     : AppColors.boardLines),
                             width: isFrozen || (canSelect && isHovering) ? 2.0 : AppSizes.cellBorderWidth,
                           ),
@@ -162,12 +163,19 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
     return AppColors.playerO;
   }
 
-  Color _getCellColor(bool isHovering, bool isFrozen, bool canSelect, Player? frozenOwner) {
+  Color _getFreezeInitiatorColor(Player? initiator) {
+    if (initiator == Player.x) {
+      return AppColors.playerX;
+    }
+    return AppColors.playerO;
+  }
+
+  Color _getCellColor(bool isHovering, bool isFrozen, bool canSelect, Player? frozenOwner, Player? freezeInitiator) {
     if (isFrozen) {
       return _getFrozenColor(frozenOwner).withValues(alpha: 0.1);
     }
     if (canSelect && isHovering) {
-      return AppColors.buttonSecondary.withValues(alpha: 0.15);
+      return _getFreezeInitiatorColor(freezeInitiator).withValues(alpha: 0.15);
     }
     if (isHovering) {
       return AppColors.buttonPrimary.withValues(alpha: 0.1);

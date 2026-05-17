@@ -1,6 +1,6 @@
 name: tictactoe_game
 description: A Tic-Tac-Toe variant game with dynamic piece removal and fun mode.
-version: 1.2.7+1
+version: 1.2.9+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
