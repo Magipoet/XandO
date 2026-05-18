@@ -28,7 +28,12 @@ class GameService {
 
     FunModeState? newFunModeState = currentState.funModeState;
     if (currentState.isFunMode() && currentState.funModeState != null) {
-      newFunModeState = currentState.funModeState!.deactivateFreeze();
+      final freezeState = currentState.funModeState!.freezeState;
+      if (freezeState.active &&
+          freezeState.owner != null &&
+          freezeState.owner != currentState.currentPlayer) {
+        newFunModeState = currentState.funModeState!.deactivateFreeze();
+      }
     }
 
     return GameState(
