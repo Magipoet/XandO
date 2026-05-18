@@ -24,7 +24,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
     final gameNotifier = ref.read(gameProvider.notifier);
 
     if (!gameState.isFunMode() || gameState.funModeState == null) {
-      return const _EmptyAbilityPanel(direction: direction);
+      return _EmptyAbilityPanel(direction: direction);
     }
 
     final funState = gameState.funModeState!;
@@ -444,7 +444,7 @@ class _ModeTile extends StatelessWidget {
 class _EmptyAbilityPanel extends StatelessWidget {
   final Axis direction;
 
-  const _EmptyAbilityPanel({required this.direction});
+  _EmptyAbilityPanel({required this.direction});
 
   @override
   Widget build(BuildContext context) {
