@@ -53,7 +53,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildDesktopLayout(GameState gameState) {
     return Column(
       children: [
-        _buildTopBar(gameState),
+        _buildTopBar(gameState, isDesktop: true),
         const StatusBar(),
         const Spacer(),
         Row(
@@ -91,7 +91,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildMobileLayout(GameState gameState) {
     return Column(
       children: [
-        _buildTopBar(gameState),
+        _buildTopBar(gameState, isDesktop: false),
         const StatusBar(),
         Opacity(
           opacity: gameState.isFunMode() ? 1.0 : 0.0,
@@ -123,7 +123,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildTopBar(GameState gameState) {
+  Widget _buildTopBar(GameState gameState, {required bool isDesktop}) {
+    final iconSize = isDesktop ? 24.0 : 22.0;
+    final minButtonSize = isDesktop ? 40.0 : 32.0;
+    final rightOffset = isDesktop ? 0.0 : -6.0;
+    final visualDensity =
+        isDesktop ? VisualDensity.standard : VisualDensity.compact;
+
     return Padding(
       padding: const EdgeInsets.only(
         top: AppSizes.titleTopMargin,
@@ -161,7 +167,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               ],
             ),
             Positioned(
-              right: -6.0,
+              right: rightOffset,
               top: 20.0,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -173,39 +179,39 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         : AppColors.textPrimary,
                     onPressed: () => _showModeSelector(),
                     tooltip: '游戏模式',
-                    iconSize: 22.0,
+                    iconSize: iconSize,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32.0,
-                      minHeight: 32.0,
+                    constraints: BoxConstraints(
+                      minWidth: minButtonSize,
+                      minHeight: minButtonSize,
                     ),
-                    visualDensity: VisualDensity.compact,
+                    visualDensity: visualDensity,
                   ),
                   IconButton(
                     icon: const Icon(Icons.help_outline),
                     color: AppColors.textPrimary,
                     onPressed: () => _showHelpDialog(),
                     tooltip: '游戏玩法',
-                    iconSize: 22.0,
+                    iconSize: iconSize,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32.0,
-                      minHeight: 32.0,
+                    constraints: BoxConstraints(
+                      minWidth: minButtonSize,
+                      minHeight: minButtonSize,
                     ),
-                    visualDensity: VisualDensity.compact,
+                    visualDensity: visualDensity,
                   ),
                   IconButton(
                     icon: const Icon(Icons.settings_outlined),
                     color: AppColors.textPrimary,
                     onPressed: () => _navigateToSettings(),
                     tooltip: '设置',
-                    iconSize: 22.0,
+                    iconSize: iconSize,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32.0,
-                      minHeight: 32.0,
+                    constraints: BoxConstraints(
+                      minWidth: minButtonSize,
+                      minHeight: minButtonSize,
                     ),
-                    visualDensity: VisualDensity.compact,
+                    visualDensity: visualDensity,
                   ),
                 ],
               ),
