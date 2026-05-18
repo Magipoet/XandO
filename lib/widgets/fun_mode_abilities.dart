@@ -103,37 +103,32 @@ class PlayerAbilityPanel extends ConsumerWidget {
     bool isFreezeWaiting,
     GameNotifier gameNotifier,
   ) {
-    return Column(
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _PlayerTitle(player: player),
-        const SizedBox(height: 8.0),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _AbilityButton(
-              ability: AbilityType.undo,
-              count: abilities.getUses(AbilityType.undo),
-              enabled: canUndo,
-              onPressed: () => gameNotifier.useFunUndo(),
-              vertical: false,
-            ),
-            const SizedBox(width: AppSizes.actionButtonSpacing),
-            _AbilityButton(
-              ability: AbilityType.freeze,
-              count: abilities.getUses(AbilityType.freeze),
-              enabled: canFreeze,
-              isActive: isFreezeWaiting,
-              onPressed: () {
-                if (isFreezeWaiting) {
-                  gameNotifier.cancelFreezeSelection();
-                } else {
-                  gameNotifier.startFreezeSelection();
-                }
-              },
-              vertical: false,
-            ),
-          ],
+        const SizedBox(width: 12.0),
+        _AbilityButton(
+          ability: AbilityType.undo,
+          count: abilities.getUses(AbilityType.undo),
+          enabled: canUndo,
+          onPressed: () => gameNotifier.useFunUndo(),
+          vertical: false,
+        ),
+        const SizedBox(width: AppSizes.actionButtonSpacing),
+        _AbilityButton(
+          ability: AbilityType.freeze,
+          count: abilities.getUses(AbilityType.freeze),
+          enabled: canFreeze,
+          isActive: isFreezeWaiting,
+          onPressed: () {
+            if (isFreezeWaiting) {
+              gameNotifier.cancelFreezeSelection();
+            } else {
+              gameNotifier.startFreezeSelection();
+            }
+          },
+          vertical: false,
         ),
       ],
     );
@@ -147,27 +142,13 @@ class _PlayerTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          player.name,
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: player == Player.x ? AppColors.playerX : AppColors.playerO,
-          ),
-        ),
-        const SizedBox(width: 4.0),
-        Text(
-          player.symbol,
-          style: TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-            color: player == Player.x ? AppColors.playerX : AppColors.playerO,
-          ),
-        ),
-      ],
+    return Text(
+      player.symbol,
+      style: TextStyle(
+        fontSize: 28.0,
+        fontWeight: FontWeight.bold,
+        color: player == Player.x ? AppColors.playerX : AppColors.playerO,
+      ),
     );
   }
 }
@@ -451,7 +432,7 @@ class _EmptyAbilityPanel extends StatelessWidget {
     if (direction == Axis.horizontal) {
       return const SizedBox(width: 92.0, height: 156.0);
     } else {
-      return const SizedBox(height: 110.0);
+      return const SizedBox(height: 72.0);
     }
   }
 }
