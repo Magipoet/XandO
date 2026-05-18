@@ -117,6 +117,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             direction: Axis.vertical,
           ),
         ),
+        const SizedBox(height: 8.0),
         _buildActionButtons(gameState),
       ],
     );
