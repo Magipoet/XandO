@@ -24,7 +24,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
     final gameNotifier = ref.read(gameProvider.notifier);
 
     if (!gameState.isFunMode() || gameState.funModeState == null) {
-      return const SizedBox.shrink();
+      return const _EmptyAbilityPanel(direction: direction);
     }
 
     final funState = gameState.funModeState!;
@@ -438,5 +438,20 @@ class _ModeTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _EmptyAbilityPanel extends StatelessWidget {
+  final Axis direction;
+
+  const _EmptyAbilityPanel({required this.direction});
+
+  @override
+  Widget build(BuildContext context) {
+    if (direction == Axis.horizontal) {
+      return const SizedBox(width: 92.0, height: 156.0);
+    } else {
+      return const SizedBox(height: 110.0);
+    }
   }
 }

@@ -43,7 +43,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final screenWidth = mediaQuery.size.width;
     final isDesktop = screenWidth > 800 || isLandscape;
 
-    if (gameState.isFunMode() && isDesktop) {
+    if (isDesktop) {
       return _buildDesktopLayout(gameState);
     } else {
       return _buildMobileLayout(gameState);
@@ -61,17 +61,23 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: PlayerAbilityPanel(
-                player: Player.x,
-                direction: Axis.horizontal,
+              child: Opacity(
+                opacity: gameState.isFunMode() ? 1.0 : 0.0,
+                child: PlayerAbilityPanel(
+                  player: Player.x,
+                  direction: Axis.horizontal,
+                ),
               ),
             ),
             const BoardWidget(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: PlayerAbilityPanel(
-                player: Player.o,
-                direction: Axis.horizontal,
+              child: Opacity(
+                opacity: gameState.isFunMode() ? 1.0 : 0.0,
+                child: PlayerAbilityPanel(
+                  player: Player.o,
+                  direction: Axis.horizontal,
+                ),
               ),
             ),
           ],
@@ -87,33 +93,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       children: [
         _buildTopBar(gameState),
         const StatusBar(),
-        SizedBox(
-          height: 118.0,
-          child: gameState.isFunMode()
-              ? Column(
-                  children: const [
-                    SizedBox(height: 8.0),
-                    PlayerAbilityPanel(
-                      player: Player.x,
-                      direction: Axis.vertical,
-                    ),
-                  ],
-                )
-              : null,
+        Opacity(
+          opacity: gameState.isFunMode() ? 1.0 : 0.0,
+          child: Column(
+            children: const [
+              SizedBox(height: 8.0),
+              PlayerAbilityPanel(
+                player: Player.x,
+                direction: Axis.vertical,
+              ),
+            ],
+          ),
         ),
         const Spacer(),
         const Center(
           child: BoardWidget(),
         ),
         const Spacer(),
-        SizedBox(
-          height: 110.0,
-          child: gameState.isFunMode()
-              ? const PlayerAbilityPanel(
-                  player: Player.o,
-                  direction: Axis.vertical,
-                )
-              : null,
+        Opacity(
+          opacity: gameState.isFunMode() ? 1.0 : 0.0,
+          child: const PlayerAbilityPanel(
+            player: Player.o,
+            direction: Axis.vertical,
+          ),
         ),
         _buildActionButtons(gameState),
       ],
