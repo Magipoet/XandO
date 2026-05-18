@@ -131,7 +131,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 64.0,
+        height: 80.0,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -161,7 +161,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
             Positioned(
               right: 0,
-              top: 8.0,
+              top: 20.0,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
