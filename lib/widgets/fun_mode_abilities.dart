@@ -35,7 +35,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
     final isWaiting = funState.waitingForFreezeTarget;
 
     final canUndo = isLastPlayer && abilities.canUse(AbilityType.undo) && !isWaiting;
-    final canFreeze = isLastPlayer && abilities.canUse(AbilityType.freeze);
+    final canFreeze = abilities.canUse(AbilityType.freeze) && !isWaiting;
     final isFreezeWaiting = isWaiting && gameNotifier.freezeInitiator == player;
 
     return Container(
@@ -86,7 +86,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
             if (isFreezeWaiting) {
               gameNotifier.cancelFreezeSelection();
             } else {
-              gameNotifier.startFreezeSelection();
+              gameNotifier.startFreezeSelection(player);
             }
           },
           vertical: true,
@@ -125,7 +125,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
             if (isFreezeWaiting) {
               gameNotifier.cancelFreezeSelection();
             } else {
-              gameNotifier.startFreezeSelection();
+              gameNotifier.startFreezeSelection(player);
             }
           },
           vertical: false,

@@ -79,18 +79,16 @@ class GameNotifier extends StateNotifier<GameState> {
     state = _gameService.useFunUndo(state, previousState, lastPlayer);
   }
 
-  void startFreezeSelection() {
+  void startFreezeSelection(Player player) {
     if (!state.isFunMode()) return;
     if (state.isGameOver) return;
-    if (_history.isEmpty) return;
-
-    final lastPlayer = _history.last.currentPlayer;
-    if (!state.funModeState!.canUseAbility(lastPlayer, AbilityType.freeze)) {
+    if (state.funModeState == null) return;
+    if (!state.funModeState!.canUseAbility(player, AbilityType.freeze)) {
       return;
     }
 
-    _freezeInitiator = lastPlayer;
-    state = _gameService.startFreezeSelection(state, lastPlayer);
+    _freezeInitiator = player;
+    state = _gameService.startFreezeSelection(state, player);
   }
 
   void cancelFreezeSelection() {
