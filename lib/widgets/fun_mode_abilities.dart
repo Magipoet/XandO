@@ -182,7 +182,7 @@ class _AbilityButton extends StatelessWidget {
           backgroundColor: enabled ? bgColor : AppColors.textSecondary.withValues(alpha: 0.3),
           foregroundColor: AppColors.buttonText,
           minimumSize: vertical
-              ? const Size(80, 72)
+              ? const Size(80, 52)
               : const Size(100, AppSizes.buttonHeight),
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           shape: RoundedRectangleBorder(

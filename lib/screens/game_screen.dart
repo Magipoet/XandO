@@ -87,7 +87,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ),
         if (gameState.isFunMode())
           Positioned(
-            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 20.0,
+            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 56.0,
             left: 0,
             right: 0,
             child: const Center(
@@ -127,7 +127,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ),
         if (gameState.isFunMode())
           Positioned(
-            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 20.0,
+            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 56.0,
             left: 0,
             right: 0,
             child: const Center(
