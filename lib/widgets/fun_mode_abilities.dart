@@ -35,7 +35,8 @@ class PlayerAbilityPanel extends ConsumerWidget {
     final isWaiting = funState.waitingForFreezeTarget;
 
     final canUndo = isLastPlayer && abilities.canUse(AbilityType.undo) && !isWaiting;
-    final canFreeze = isLastPlayer && abilities.canUse(AbilityType.freeze) && !isWaiting;
+    final canFreeze = isLastPlayer && abilities.canUse(AbilityType.freeze);
+    final isFreezeWaiting = isWaiting && gameNotifier.freezeInitiator == player;
 
     return Container(
       padding: const EdgeInsets.all(12.0),
@@ -50,8 +51,8 @@ class PlayerAbilityPanel extends ConsumerWidget {
         ),
       ),
       child: direction == Axis.horizontal
-          ? _buildHorizontalLayout(player, abilities, canUndo, canFreeze, gameNotifier)
-          : _buildVerticalLayout(player, abilities, canUndo, canFreeze, gameNotifier),
+          ? _buildHorizontalLayout(player, abilities, canUndo, canFreeze, isFreezeWaiting, gameNotifier)
+          : _buildVerticalLayout(player, abilities, canUndo, canFreeze, isFreezeWaiting, gameNotifier),
     );
   }
 
@@ -60,6 +61,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
     PlayerAbilities abilities,
     bool canUndo,
     bool canFreeze,
+    bool isFreezeWaiting,
     GameNotifier gameNotifier,
   ) {
     return Column(
@@ -79,7 +81,14 @@ class PlayerAbilityPanel extends ConsumerWidget {
           ability: AbilityType.freeze,
           count: abilities.getUses(AbilityType.freeze),
           enabled: canFreeze,
-          onPressed: () => gameNotifier.startFreezeSelection(),
+          isActive: isFreezeWaiting,
+          onPressed: () {
+            if (isFreezeWaiting) {
+              gameNotifier.cancelFreezeSelection();
+            } else {
+              gameNotifier.startFreezeSelection();
+            }
+          },
           vertical: true,
         ),
       ],
@@ -91,6 +100,7 @@ class PlayerAbilityPanel extends ConsumerWidget {
     PlayerAbilities abilities,
     bool canUndo,
     bool canFreeze,
+    bool isFreezeWaiting,
     GameNotifier gameNotifier,
   ) {
     return Column(
@@ -113,7 +123,14 @@ class PlayerAbilityPanel extends ConsumerWidget {
               ability: AbilityType.freeze,
               count: abilities.getUses(AbilityType.freeze),
               enabled: canFreeze,
-              onPressed: () => gameNotifier.startFreezeSelection(),
+              isActive: isFreezeWaiting,
+              onPressed: () {
+                if (isFreezeWaiting) {
+                  gameNotifier.cancelFreezeSelection();
+                } else {
+                  gameNotifier.startFreezeSelection();
+                }
+              },
               vertical: false,
             ),
           ],
@@ -159,6 +176,7 @@ class _AbilityButton extends StatelessWidget {
   final AbilityType ability;
   final int count;
   final bool enabled;
+  final bool isActive;
   final VoidCallback onPressed;
   final bool vertical;
 
@@ -166,6 +184,7 @@ class _AbilityButton extends StatelessWidget {
     required this.ability,
     required this.count,
     required this.enabled,
+    this.isActive = false,
     required this.onPressed,
     required this.vertical,
   });
@@ -179,24 +198,29 @@ class _AbilityButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: enabled ? bgColor : AppColors.textSecondary.withValues(alpha: 0.3),
+          backgroundColor: isActive
+              ? bgColor.withValues(alpha: 0.7)
+              : (enabled ? bgColor : AppColors.textSecondary.withValues(alpha: 0.3)),
           foregroundColor: AppColors.buttonText,
           minimumSize: vertical
-              ? const Size(80, 52)
-              : const Size(100, AppSizes.buttonHeight),
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              ? const Size(68, 48)
+              : const Size(88, AppSizes.buttonHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.buttonBorderRadius),
+            side: isActive
+                ? BorderSide(color: bgColor, width: 2.0)
+                : BorderSide.none,
           ),
         ),
         icon: Text(
           ability.icon,
-          style: const TextStyle(fontSize: 18.0),
+          style: const TextStyle(fontSize: 16.0),
         ),
         label: Text(
           ability.getDisplayNameWithCount(count),
           style: TextStyle(
-            fontSize: vertical ? 12.0 : AppSizes.buttonFontSize,
+            fontSize: vertical ? 11.0 : AppSizes.buttonFontSize,
             fontWeight: FontWeight.bold,
           ),
         ),

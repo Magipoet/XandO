@@ -184,22 +184,13 @@ class _BoardWidgetState extends ConsumerState<BoardWidget> {
   }
 
   double _calculateBoardSize(BoxConstraints constraints, double widthRatio) {
-    final screenWidth = constraints.maxWidth;
-    final screenHeight = constraints.maxHeight;
-
-    final maxWidth = screenWidth * widthRatio;
+    final maxWidth = constraints.maxWidth * widthRatio;
     final clampedWidth = maxWidth.clamp(
       AppSizes.boardMinWidth,
       AppSizes.boardMaxWidth,
     );
 
-    final availableHeight = screenHeight -
-        AppSizes.titleTopMargin -
-        AppSizes.statusBarTopMargin -
-        AppSizes.resetButtonBottomMargin -
-        kToolbarHeight;
-
-    return clampedWidth.clamp(0, availableHeight);
+    return clampedWidth.clamp(0, constraints.maxHeight);
   }
 
   void _handleCellTap(int row, int col, Piece? piece, bool isFrozen, bool isWaitingForFreeze) {

@@ -51,89 +51,63 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildDesktopLayout(GameState gameState) {
-    return Stack(
+    return Column(
       children: [
-        Column(
-          children: [
-            _buildTopBar(gameState),
-            const StatusBar(),
-            const SizedBox(height: 8.0),
-            const Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: PlayerAbilityPanel(
-                      player: Player.x,
-                      direction: Axis.horizontal,
-                    ),
-                  ),
-                  Center(
-                    child: BoardWidget(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: PlayerAbilityPanel(
-                      player: Player.o,
-                      direction: Axis.horizontal,
-                    ),
-                  ),
-                ],
+        _buildTopBar(gameState),
+        const StatusBar(),
+        const SizedBox(height: 8.0),
+        const Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: PlayerAbilityPanel(
+                  player: Player.x,
+                  direction: Axis.horizontal,
+                ),
               ),
-            ),
-            _buildActionButtons(gameState),
-          ],
-        ),
-        if (gameState.isFunMode())
-          Positioned(
-            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 56.0,
-            left: 0,
-            right: 0,
-            child: const Center(
-              child: FreezeTargetHint(),
-            ),
+              Center(
+                child: BoardWidget(),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: PlayerAbilityPanel(
+                  player: Player.o,
+                  direction: Axis.horizontal,
+                ),
+              ),
+            ],
           ),
+        ),
+        _buildActionButtons(gameState),
       ],
     );
   }
 
   Widget _buildMobileLayout(GameState gameState) {
-    return Stack(
+    return Column(
       children: [
-        Column(
-          children: [
-            _buildTopBar(gameState),
-            const StatusBar(),
-            if (gameState.isFunMode()) ...[
-              const SizedBox(height: 8.0),
-              const PlayerAbilityPanel(
-                player: Player.x,
-                direction: Axis.vertical,
-              ),
-            ],
-            const Spacer(),
-            const Center(
-              child: BoardWidget(),
-            ),
-            const Spacer(),
-            if (gameState.isFunMode())
-              const PlayerAbilityPanel(
-                player: Player.o,
-                direction: Axis.vertical,
-              ),
-            _buildActionButtons(gameState),
-          ],
-        ),
-        if (gameState.isFunMode())
-          Positioned(
-            top: AppSizes.titleTopMargin + 64.0 + AppSizes.statusBarTopMargin + 56.0,
-            left: 0,
-            right: 0,
-            child: const Center(
-              child: FreezeTargetHint(),
-            ),
+        _buildTopBar(gameState),
+        const StatusBar(),
+        if (gameState.isFunMode()) ...[
+          const SizedBox(height: 8.0),
+          const PlayerAbilityPanel(
+            player: Player.x,
+            direction: Axis.vertical,
           ),
+        ],
+        const Spacer(),
+        const Center(
+          child: BoardWidget(),
+        ),
+        const Spacer(),
+        if (gameState.isFunMode())
+          const PlayerAbilityPanel(
+            player: Player.o,
+            direction: Axis.vertical,
+          ),
+        _buildActionButtons(gameState),
       ],
     );
   }
