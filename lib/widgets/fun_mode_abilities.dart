@@ -176,6 +176,7 @@ class _AbilityButton extends StatelessWidget {
 
     return Tooltip(
       message: ability.tooltip,
+      preferBelow: false,
       child: ElevatedButton.icon(
         onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
