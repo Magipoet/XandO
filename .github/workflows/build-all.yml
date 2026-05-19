@@ -157,6 +157,28 @@ jobs:
       run: dart run flutter_launcher_icons
       timeout-minutes: 5
 
+    - name: Verify Windows icon was generated
+      run: |
+        $iconPath = "windows/runner/resources/app_icon.ico"
+        if (Test-Path $iconPath) {
+          $iconSize = (Get-Item $iconPath).Length
+          Write-Host "✅ app_icon.ico found, size: $iconSize bytes"
+          if ($iconSize -lt 1000) {
+            Write-Host "⚠️  Icon file is too small, may be default icon"
+          }
+        } else {
+          Write-Host "❌ app_icon.ico not found at $iconPath"
+          Write-Host "Listing windows/runner/resources directory:"
+          Get-ChildItem windows/runner/resources/ -ErrorAction SilentlyContinue
+        }
+
+    - name: Clean build cache to ensure new icon is used
+      run: |
+        if (Test-Path "build/windows") {
+          Remove-Item -Recurse -Force "build/windows"
+          Write-Host "✅ Cleaned build/windows cache"
+        }
+
     - name: Build Windows executable
       run: flutter build windows --release
       timeout-minutes: 15
