@@ -148,8 +148,13 @@ jobs:
     - name: Generate Windows platform files
       run: flutter create . --platforms windows
 
+    - name: Configure pubspec for Windows only
+      run: |
+        (Get-Content pubspec.yaml) -replace 'android: true', 'android: false' | Set-Content pubspec.yaml
+        Get-Content pubspec.yaml | Select-String -Pattern 'flutter_launcher_icons:' -Context 0,10
+
     - name: Generate app icons
-      run: dart run flutter_launcher_icons --platforms windows
+      run: dart run flutter_launcher_icons
       timeout-minutes: 5
 
     - name: Build Windows executable
@@ -214,8 +219,13 @@ jobs:
       run: flutter create . --platforms android
       timeout-minutes: 5
 
+    - name: Configure pubspec for Android only
+      run: |
+        sed -i '/^  windows:/,/^    icon_size: 256/s/^/#/' pubspec.yaml
+        grep -A 10 'flutter_launcher_icons:' pubspec.yaml
+
     - name: Generate app icons
-      run: dart run flutter_launcher_icons --platforms android
+      run: dart run flutter_launcher_icons
       timeout-minutes: 5
 
     - name: List generated Android files
