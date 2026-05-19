@@ -148,6 +148,10 @@ jobs:
     - name: Generate Windows platform files
       run: flutter create . --platforms windows
 
+    - name: Generate app icons
+      run: dart run flutter_launcher_icons
+      timeout-minutes: 5
+
     - name: Build Windows executable
       run: flutter build windows --release
       timeout-minutes: 15
@@ -208,6 +212,10 @@ jobs:
 
     - name: Generate Android platform files
       run: flutter create . --platforms android
+      timeout-minutes: 5
+
+    - name: Generate app icons
+      run: dart run flutter_launcher_icons
       timeout-minutes: 5
 
     - name: List generated Android files

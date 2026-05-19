@@ -1,6 +1,6 @@
 name: tictactoe_game
 description: A Tic-Tac-Toe variant game with dynamic piece removal and fun mode.
-version: 1.3.8+1
+version: 1.3.9+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -29,6 +29,17 @@ dev_dependencies:
   
   # 代码分析
   flutter_lints: ^2.0.0
+  
+  # 应用图标生成
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  image_path: "logo/2048_logo.jpg"
+  android: true
+  windows:
+    generate: true
+    image_path: "logo/2048_logo.jpg"
+    icon_size: 256
 
 flutter:
   uses-material-design: true
