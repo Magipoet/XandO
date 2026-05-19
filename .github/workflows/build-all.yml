@@ -161,8 +161,13 @@ jobs:
       run: |
         $iconPath = "windows/runner/resources/app_icon.ico"
         if (Test-Path $iconPath) {
-          $iconSize = (Get-Item $iconPath).Length
-          Write-Host "✅ app_icon.ico found, size: $iconSize bytes"
+          $iconFile = Get-Item $iconPath
+          $iconSize = $iconFile.Length
+          $iconHash = Get-FileHash $iconPath -Algorithm MD5
+          Write-Host "✅ app_icon.ico found"
+          Write-Host "   Size: $iconSize bytes"
+          Write-Host "   Last modified: $($iconFile.LastWriteTime)"
+          Write-Host "   MD5: $($iconHash.Hash)"
           if ($iconSize -lt 1000) {
             Write-Host "⚠️  Icon file is too small, may be default icon"
           }
@@ -178,10 +183,15 @@ jobs:
           Remove-Item -Recurse -Force "build/windows"
           Write-Host "✅ Cleaned build/windows cache"
         }
+        $cmakeCache = "windows/CMakeLists.txt.user"
+        if (Test-Path $cmakeCache) {
+          Remove-Item -Force $cmakeCache
+          Write-Host "✅ Cleaned CMake user cache"
+        }
 
     - name: Build Windows executable
-      run: flutter build windows --release
-      timeout-minutes: 15
+      run: flutter build windows --release --verbose
+      timeout-minutes: 20
 
     - name: List build output
       run: |
