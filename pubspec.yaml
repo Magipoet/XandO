@@ -34,11 +34,11 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.1
 
 flutter_launcher_icons:
-  image_path: "logo/2048_logo.jpg"
+  image_path: "logo/xando.jpg"
   android: true
   windows:
     generate: true
-    image_path: "logo/2048_logo.jpg"
+    image_path: "logo/xando.jpg"
     icon_size: 256
 
 flutter:
