@@ -73,6 +73,7 @@ class GameService {
       return currentState;
     }
     if (currentState.isWaitingForFreezeTarget()) return currentState;
+    if (currentState.funModeState!.freezeState.active) return currentState;
 
     return currentState.copyWith(
       funModeState: currentState.funModeState!.startWaitingForFreezeTarget(),
@@ -94,6 +95,9 @@ class GameService {
     if (!currentState.isWaitingForFreezeTarget()) return currentState;
     if (!currentState.board.isEmpty(row, col)) return currentState;
     if (!currentState.funModeState!.canUseAbility(player, AbilityType.freeze)) {
+      return currentState;
+    }
+    if (currentState.funModeState!.freezeState.active) {
       return currentState;
     }
 
