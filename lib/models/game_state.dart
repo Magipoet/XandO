@@ -73,12 +73,12 @@ class FreezeState {
 
 class FunModeState {
   final Map<Player, PlayerAbilities> playerAbilities;
-  final FreezeState freezeState;
+  final Map<Player, FreezeState> freezeStates;
   final bool waitingForFreezeTarget;
 
   FunModeState({
     Map<Player, PlayerAbilities>? playerAbilities,
-    FreezeState? freezeState,
+    Map<Player, FreezeState>? freezeStates,
     this.waitingForFreezeTarget = false,
   })  : playerAbilities = playerAbilities ??
             {
@@ -91,7 +91,11 @@ class FunModeState {
                 AbilityType.freeze: 1,
               }),
             },
-        freezeState = freezeState ?? FreezeState();
+        freezeStates = freezeStates ??
+            {
+              Player.x: FreezeState(),
+              Player.o: FreezeState(),
+            };
 
   PlayerAbilities getAbilities(Player player) {
     return playerAbilities[player] ?? PlayerAbilities();
@@ -106,20 +110,22 @@ class FunModeState {
     newAbilities[player] = newAbilities[player]!.useAbility(ability);
     return FunModeState(
       playerAbilities: newAbilities,
-      freezeState: freezeState,
+      freezeStates: freezeStates,
       waitingForFreezeTarget: waitingForFreezeTarget,
     );
   }
 
   FunModeState setFreezeTarget(int row, int col, Player owner) {
+    final newFreezeStates = Map<Player, FreezeState>.from(freezeStates);
+    newFreezeStates[owner] = FreezeState(
+      row: row,
+      col: col,
+      owner: owner,
+      active: true,
+    );
     return FunModeState(
       playerAbilities: playerAbilities,
-      freezeState: FreezeState(
-        row: row,
-        col: col,
-        owner: owner,
-        active: true,
-      ),
+      freezeStates: newFreezeStates,
       waitingForFreezeTarget: false,
     );
   }
@@ -127,7 +133,7 @@ class FunModeState {
   FunModeState startWaitingForFreezeTarget() {
     return FunModeState(
       playerAbilities: playerAbilities,
-      freezeState: freezeState,
+      freezeStates: freezeStates,
       waitingForFreezeTarget: true,
     );
   }
@@ -135,27 +141,42 @@ class FunModeState {
   FunModeState cancelWaitingForFreezeTarget() {
     return FunModeState(
       playerAbilities: playerAbilities,
-      freezeState: freezeState,
+      freezeStates: freezeStates,
       waitingForFreezeTarget: false,
     );
   }
 
-  FunModeState deactivateFreeze() {
+  FunModeState deactivateFreezeForPlayer(Player player) {
+    final newFreezeStates = Map<Player, FreezeState>.from(freezeStates);
+    newFreezeStates[player] = newFreezeStates[player]!.deactivate();
     return FunModeState(
       playerAbilities: playerAbilities,
-      freezeState: freezeState.deactivate(),
+      freezeStates: newFreezeStates,
       waitingForFreezeTarget: waitingForFreezeTarget,
     );
   }
 
+  bool isAnyCellFrozen(int row, int col) {
+    return freezeStates.values.any((fs) => fs.isCellFrozen(row, col));
+  }
+
+  Player? getFrozenCellOwner(int row, int col) {
+    for (final fs in freezeStates.values) {
+      if (fs.isCellFrozen(row, col)) {
+        return fs.owner;
+      }
+    }
+    return null;
+  }
+
   FunModeState copyWith({
     Map<Player, PlayerAbilities>? playerAbilities,
-    FreezeState? freezeState,
+    Map<Player, FreezeState>? freezeStates,
     bool? waitingForFreezeTarget,
   }) {
     return FunModeState(
       playerAbilities: playerAbilities ?? Map.from(this.playerAbilities),
-      freezeState: freezeState ?? this.freezeState,
+      freezeStates: freezeStates ?? Map.from(this.freezeStates),
       waitingForFreezeTarget: waitingForFreezeTarget ?? this.waitingForFreezeTarget,
     );
   }
@@ -232,13 +253,12 @@ class GameState {
   bool isCellFrozen(int row, int col) {
     if (!isFunMode()) return false;
     if (funModeState == null) return false;
-    return funModeState!.freezeState.isCellFrozen(row, col);
+    return funModeState!.isAnyCellFrozen(row, col);
   }
 
   Player? getFrozenCellOwner(int row, int col) {
     if (!isFunMode()) return null;
     if (funModeState == null) return null;
-    if (!funModeState!.freezeState.isCellFrozen(row, col)) return null;
-    return funModeState!.freezeState.owner;
+    return funModeState!.getFrozenCellOwner(row, col);
   }
 }

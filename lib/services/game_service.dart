@@ -28,11 +28,10 @@ class GameService {
 
     FunModeState? newFunModeState = currentState.funModeState;
     if (currentState.isFunMode() && currentState.funModeState != null) {
-      final freezeState = currentState.funModeState!.freezeState;
-      if (freezeState.active &&
-          freezeState.owner != null &&
-          freezeState.owner != currentState.currentPlayer) {
-        newFunModeState = currentState.funModeState!.deactivateFreeze();
+      final opponent = currentState.currentPlayer.next;
+      final opponentFreeze = currentState.funModeState!.freezeStates[opponent];
+      if (opponentFreeze != null && opponentFreeze.active) {
+        newFunModeState = currentState.funModeState!.deactivateFreezeForPlayer(opponent);
       }
     }
 
@@ -73,7 +72,6 @@ class GameService {
       return currentState;
     }
     if (currentState.isWaitingForFreezeTarget()) return currentState;
-    if (currentState.funModeState!.freezeState.active) return currentState;
 
     return currentState.copyWith(
       funModeState: currentState.funModeState!.startWaitingForFreezeTarget(),
@@ -95,9 +93,6 @@ class GameService {
     if (!currentState.isWaitingForFreezeTarget()) return currentState;
     if (!currentState.board.isEmpty(row, col)) return currentState;
     if (!currentState.funModeState!.canUseAbility(player, AbilityType.freeze)) {
-      return currentState;
-    }
-    if (currentState.funModeState!.freezeState.active) {
       return currentState;
     }
 
