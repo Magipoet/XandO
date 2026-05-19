@@ -278,12 +278,9 @@ class GameModeSelector extends ConsumerWidget {
   const GameModeSelector({super.key});
 
   static Future<void> show(BuildContext context) async {
-    await showModalBottomSheet(
+    await showDialog(
       context: context,
-      backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
+      barrierDismissible: true,
       builder: (context) => const GameModeSelector(),
     );
   }
@@ -292,9 +289,13 @@ class GameModeSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
 
-    return Container(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
+    return AlertDialog(
+      backgroundColor: AppColors.background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      contentPadding: const EdgeInsets.all(24.0),
+      content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -326,7 +327,6 @@ class GameModeSelector extends ConsumerWidget {
               Navigator.of(context).pop();
             },
           ),
-          const SizedBox(height: 24.0),
         ],
       ),
     );
